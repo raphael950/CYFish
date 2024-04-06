@@ -57,16 +57,39 @@ char penguinsNumber(char playerNumber) {
     }
 }
 
-typedef struct {
+void stockeUnHexagone(char screen[WIDTH*4-1][9*(LENGTH/2 + 1) + 5*(LENGTH / 2)], int startX, int startY) {
+    // Traits
+    for (int y = startY; y < startY+5; y+=4) {
+        for (int x = startX + 2; x < startX + 6; ++x)
+            screen[y][x] = '_';
+    }
 
-} Penguin;
+
+
+}
+
 
 int main() {
     Box map[WIDTH][LENGTH];
+
+
+
+
     char screen[WIDTH*4-1][9*(LENGTH/2 + 1) + 5*(LENGTH / 2)] = {0};
 
     for (int y = 0; y < WIDTH*4-1; ++y) {
+        for (int x = 0; x < 9*(LENGTH/2 + 1) + 5*(LENGTH / 2); ++x) {
+            screen[y][x] = ' ';
+        }
+    }
 
+    stockeUnHexagone(screen, 0, 0);
+
+    for (int y = 0; y < WIDTH*4-1; ++y) {
+        for (int x = 0; x < 9*(LENGTH/2 + 1) + 5*(LENGTH / 2); ++x) {
+            printf("%c", screen[y][x]);
+        }
+        printf("\n");
     }
 
     // TODO: ask player number >= 2 && <= 6
