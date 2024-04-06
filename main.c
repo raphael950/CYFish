@@ -18,6 +18,7 @@ Box boxBuilder(char fish, char playerId) {
     return box;
 }
 
+// utile ?
 void generateFish(Box map[WIDTH][LENGTH], int minMonoPinguins) {
     int monoPinguinCount = 0;
     for (int y = 0; y < WIDTH; ++y) {
@@ -36,6 +37,11 @@ void generateFish(Box map[WIDTH][LENGTH], int minMonoPinguins) {
             monoPinguinCount++;
         }
     }
+}
+
+
+void showMap(char map) {
+    // print les bordures et
 }
 
 char penguinsNumber(char playerNumber) {
@@ -57,8 +63,11 @@ typedef struct {
 
 int main() {
     Box map[WIDTH][LENGTH];
+    char screen[WIDTH*4-1][9*(LENGTH/2 + 1) + 5*(LENGTH / 2)] = {0};
 
+    for (int y = 0; y < WIDTH*4-1; ++y) {
 
+    }
 
     // TODO: ask player number >= 2 && <= 6
     int players = 6;
