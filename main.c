@@ -57,12 +57,24 @@ char penguinsNumber(char playerNumber) {
     }
 }
 
-void stockeUnHexagone(char screen[WIDTH*4-1][9*(LENGTH/2 + 1) + 5*(LENGTH / 2)], int startX, int startY) {
-    // Traits
-    for (int y = startY; y < startY+5; y+=4) {
-        for (int x = startX + 2; x < startX + 6; ++x)
+void stockeUnHexagone(char screen[WIDTH*4-1][9*(LENGTH/2 + 1) + 5*(LENGTH / 2)]) {
+    int startX = 0, startY = 0;
+    int x, y;
+    for (y = startY; y < startY+5; y+=4) {
+        for (x = startX + 2; x < startX + 7; ++x)
             screen[y][x] = '_';
     }
+
+    // les /
+    screen[1][1] = '/';
+    screen[2][0] = '/';
+    screen[3][8] = '/';
+    screen[4][7] = '/';
+
+    screen[1][7] = '\\';
+    screen[2][8] = '\\';
+    screen[3][0] = '\\';
+    screen[4][1] = '\\';
 
 
 
@@ -83,7 +95,7 @@ int main() {
         }
     }
 
-    stockeUnHexagone(screen, 0, 0);
+    stockeUnHexagone(screen);
 
     for (int y = 0; y < WIDTH*4-1; ++y) {
         for (int x = 0; x < 9*(LENGTH/2 + 1) + 5*(LENGTH / 2); ++x) {
