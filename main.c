@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 #define WIDTH 9
 #define LENGTH 9
-
 
 typedef struct {
     char fish;
@@ -57,50 +55,45 @@ char penguinsNumber(char playerNumber) {
     }
 }
 
-void stockeUnHexagone(char screen[WIDTH*4-1][9*(LENGTH/2 + 1) + 5*(LENGTH / 2)], int startX, int startY) {
-
+void saveHexagon(char screen[WIDTH*4-1][9*(LENGTH/2 + 1) + 5*(LENGTH / 2)], int xOffset, int yOffset) {
     int x, y;
-    for (y = startY; y < startY+5; y+=4) {
-        for (x = startX + 2; x < startX + 7; ++x)
+    for (y = yOffset; y < yOffset+5; y+=4) {
+        for (x = xOffset + 2; x < xOffset + 7; ++x)
             screen[y][x] = '_';
     }
+    screen[1 + yOffset][1 + xOffset] = '/';
+    screen[2 + yOffset][0 + xOffset] = '/';
+    screen[3 + yOffset][8 + xOffset] = '/';
+    screen[4 + yOffset][7 + xOffset] = '/';
 
-    // les /
-    screen[1 + startY][1 + startX] = '/';
-    screen[2 + startY][0 + startX] = '/';
-    screen[3 + startY][8 + startX] = '/';
-    screen[4 + startY][7 + startX] = '/';
-
-    screen[1 + startY][7 + startX] = '\\';
-    screen[2 + startY][8 + startX] = '\\';
-    screen[3 + startY][0 + startX] = '\\';
-    screen[4 + startY][1 + startX] = '\\';
-
+    screen[1 + yOffset][7 + xOffset] = '\\';
+    screen[2 + yOffset][8 + xOffset] = '\\';
+    screen[3 + yOffset][0 + xOffset] = '\\';
+    screen[4 + yOffset][1 + xOffset] = '\\';
 }
 
 void stockHexagones(char screen[WIDTH*4-1][9*(LENGTH/2 + 1) + 5*(LENGTH / 2)]) {
-    for (int y = 0; y < WIDTH*4-1; y+=5) {
-        for (int x = 0; x < 9*(LENGTH/2 + 1) + 5*(LENGTH / 2); x+=5) {
-
+    for (int y = 0; y < WIDTH*4-1; y+=4) {
+        for (int x = 0; x < 9*(LENGTH/2 + 1) + 5*(LENGTH / 2); x+=14) {
+            saveHexagon(screen, x, y);
         }
     }
-    stockeUnHexagone(screen, 0, 0);
-    stockeUnHexagone(screen, 0, 4);
-    stockeUnHexagone(screen, 0, 8);
 
-    stockeUnHexagone(screen, 7, 2);
-    stockeUnHexagone(screen, 7, 6);
+    for (int y = 2; y < WIDTH*4-1; y+=4) {
+        for (int x = 7; x < 9*(LENGTH/2 + 1) + 5*(LENGTH / 2); x+=14) {
+            saveHexagon(screen, x, y);
+        }
+    }
 
-    stockeUnHexagone(screen, 14, 0);
-    stockeUnHexagone(screen, 14, 4);
-    stockeUnHexagone(screen, 14, 8);
+
+    saveHexagon(screen, 7, 2);
+    saveHexagon(screen, 7, 6);
+
 }
 
 
 int main() {
     Box map[WIDTH][LENGTH];
-
-
 
 
     char screen[WIDTH*4-1][9*(LENGTH/2 + 1) + 5*(LENGTH / 2)] = {0};
@@ -112,6 +105,8 @@ int main() {
     }
 
     stockHexagones(screen);
+
+    printf("\n");
 
     for (int y = 0; y < WIDTH*4-1; ++y) {
         for (int x = 0; x < 9*(LENGTH/2 + 1) + 5*(LENGTH / 2); ++x) {
