@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define BOX_LENGTH 9 // Length of chars that form Hexagon
 #define BOX_WIDTH 5 // Width of chars that form Hexagon
@@ -11,36 +12,113 @@
 #define SCREEN_WIDTH (BOX_Y * BOX_WIDTH - BOX_Y + 1) // Explained with a map scheme
 #define SCREEN_LENGTH (BOX_LENGTH * (BOX_X / 2 + 1) + (BOX_LENGTH - 4) * (BOX_X / 2)) // Explained with a map scheme
 
+
+#define random(min, max) (rand() % (max-min+1) + min)
+
+#define MIN_FISHES 1
+#define MAX_FISHES 3
+
 typedef struct {
-    bool isReachable;
-    char fish;
-    char playerId;
+    char fishes;
+    char fishSlots[MAX_FISHES]; // slots of fishes between 0 and 17, -1 for no fish
+    char playerId; // -1 if no player allowed, 0 if no player, else it's player id
 } Box;
 
-Box boxBuilder(bool isReachable, char fish, char playerId) {
+Box boxBuilder(char fishes, char* fishSlots, char playerId) {
     Box box;
-    box.fish = fish;
+    box.fishes = fishes;
+
+    for (int i = 0; i < fishes; ++i) {
+        box.fishSlots[i] = fishSlots[i];
+    }
     box.playerId = playerId;
     return box;
 }
 
-// utile ?
-void generateFish(Box map[BOX_Y][BOX_X], int minMonoPinguins) {
+void showBox(Box box) {
+    printf("Box: \n");
+    printf("- Fishes: %d\n- Slots: [", box.fishes);
+    for (int i = 0; i < box.fishes; ++i) {
+        printf("%d", box.fishSlots[i]);
+        if (i+1 != box.fishes) printf(", ");
+    }
+    printf("]\n");
+    if (box.playerId == -1) {
+        printf("This box is out !\n");
+    } else if (box.playerId == 0) {
+        printf("No player on this box!\n");
+    } else {
+        printf("Player n°%d is on this box!\n");
+    }
+}
+
+void fillBlankMap(Box map[3][9]) {
+    for (int y = 0; y < BOX_Y; ++y) {
+        for (int x = 0; x < BOX_X; ++x) {
+
+            map[y][x] = boxBuilder(0, NULL, 0);
+            if (y == BOX_Y - 1 && x % 2 == 1) map[y][x].playerId = -1;
+        }
+    }
+}
+
+bool contains(char* tab, int len, char value) {
+    for (int i = 0; i < len; ++i) {
+        if (tab[i] == value)
+            return true;
+    }
+    return false;
+}
+
+void defineRandomFishSlots(Box* box) {
+    for (int i = 0; i < box->fishes; ++i) {
+        int slot;
+        do {
+            slot = random(0, 17);
+        } while (contains(box->fishSlots, i, slot));
+        box->fishSlots[i] = slot;
+    }
+}
+
+void generateFishes(Box map[BOX_Y][BOX_X], int minMonoPinguins) {
     int monoPinguinCount = 0;
     for (int y = 0; y < BOX_Y; ++y) {
         for (int x = 0; x < BOX_X; ++x) {
-            int random = rand() % 3 + 2;
-            map[y][x].fish = random;
-            if (random == 1) monoPinguinCount++;
+
+            // Check if Box is in the map
+            if(map[y][x].playerId != -1) {
+                char randomFishNumber = random(1, 3);
+                map[y][x].fishes = randomFishNumber;
+                if (randomFishNumber == 1)
+                    monoPinguinCount++;
+            }
         }
     }
 
     // Remove fishes if they are too many, disturbing pinguins spawn
     while (monoPinguinCount < minMonoPinguins) {
         int x = rand() % BOX_Y, y = rand() % BOX_X;
-        if (map[y][x].fish != 1) {
-            map[y][x].fish = 1;
+        if (map[y][x].fishes > 1) {
+            map[y][x].fishes = 1;
             monoPinguinCount++;
+        }
+    }
+
+    // Random fish slots
+    for (int y = 0; y < BOX_Y; ++y) {
+        for (int x = 0; x < BOX_X; ++x) {
+            // Check if Box is in the map
+            if(map[y][x].playerId != -1) {
+                defineRandomFishSlots(&map[y][x]);
+            }
+        }
+    }
+}
+
+void fillBlankScreen(char screen[SCREEN_WIDTH][SCREEN_LENGTH]) {
+    for (int y = 0; y < SCREEN_WIDTH; ++y) {
+        for (int x = 0; x < SCREEN_LENGTH; ++x) {
+            screen[y][x] = ' ';
         }
     }
 }
@@ -55,18 +133,7 @@ void showScreen(char screen[SCREEN_WIDTH][SCREEN_LENGTH]) {
     }
 }
 
-void setupMap(Box map[BOX_Y][BOX_X]) {
-    for (int y = 0; y < BOX_Y; ++y) {
-        for (int x = 0; x < BOX_X; ++x) {
 
-            map[y][x] = boxBuilder(1, 0, -1);
-
-            if (y == BOX_Y - 1 && x % 2 == 1) {
-                map[y][x].isReachable = false;
-            }
-        }
-    }
-}
 
 char penguinsNumber(char playerNumber) {
     switch (playerNumber) {
@@ -113,6 +180,35 @@ void saveHexagons(char screen[SCREEN_WIDTH][SCREEN_LENGTH]) {
 
 }
 
+void saveFishes(char screen[SCREEN_WIDTH][SCREEN_LENGTH], Box map[BOX_Y][BOX_X]) {
+    int xBox=0, yBox=0;
+    for (int y = 0; y < SCREEN_WIDTH; y+=BOX_WIDTH/2) {
+        for (int x = 0; x < SCREEN_LENGTH; x+=7) {
+
+            if (y % 4 == 0 && x % 14 == 0 || y % 4 != 0 && x % 14 != 0) {
+                if (xBox < BOX_X && yBox < BOX_Y) {
+                    Box box = map[yBox][xBox];
+                    for (int i = 0; i < box.fishes; ++i) {
+                        char slot = box.fishSlots[i];
+                        if (slot < 5) screen[y+1][x+slot+2] = 'F';
+                        else if (slot < 8) screen[y+2][x+slot+1-5] = 'F';
+                        else if (slot < 11) screen[y+2][x+slot+1+1-5] = 'F';
+                        else screen[y+3][x+slot+1-11] = 'F';
+                    }
+                    printf("(%d, %d)\n", xBox, yBox);
+                    xBox+=2;
+                }
+            }
+        }
+        if (y % 4 == 0) {
+            xBox = 1;
+        } else {
+            xBox = 0;
+            yBox += 1;
+        }
+    }
+}
+
 int askPlayers(int min, int max) {
     int players, res = -1;
     do {
@@ -124,21 +220,32 @@ int askPlayers(int min, int max) {
 }
 
 
+
 int main() {
+    srand(time(NULL));
 
     int players = askPlayers(2, 6);
 
 
+    Box map[BOX_Y][BOX_X];
     char screen[SCREEN_WIDTH][SCREEN_LENGTH] = {0};
 
-    for (int y = 0; y < SCREEN_WIDTH; ++y) {
-        for (int x = 0; x < SCREEN_LENGTH; ++x) {
-            screen[y][x] = ' ';
-        }
-    }
+    fillBlankScreen(screen);
+    fillBlankMap(map);
+
+    generateFishes(map, penguinsNumber(players) * players);
 
     saveHexagons(screen);
     showScreen(screen);
+
+    saveFishes(screen, map);
+    showScreen(screen);
+
+
+    for (int y = 0; y < BOX_Y; ++y) {
+
+    }
+
 
 
 
