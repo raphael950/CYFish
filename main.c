@@ -21,13 +21,13 @@
 typedef struct {
     int x;
     int y;
-} Coordinate;
+} Coord;
 
 typedef struct {
     char fishes;
     char fishSlots[MAX_FISHES]; // slots of fishes between 0 and 17, -1 for no fish
     char playerId; // -1 if no player allowed, 0 if no player, else it's player id
-    Coordinate absoluteCoords; // cordonnes sur le plan parmis les autres hexagones
+    Coord absoluteLocation; // cordonnes sur le plan parmis les autres hexagones
 } Hexagon;
 
 
@@ -63,7 +63,7 @@ void showBox(Hexagon box) {
 // On renvoie un Hexagon* pour pouvoir return NULL (aucun hexa dispo)
 Hexagon* relativeHexagon(Hexagon map[BOX_Y][BOX_X], Hexagon start, int direction) {
 
-    int x = start.absoluteCoords.x, y = start.absoluteCoords.y;
+    int x = start.absoluteLocation.x, y = start.absoluteLocation.y;
     int isColumnEven = (x % 2 == 0);
 
     // On modifie les coordonnes pour obtenir celles du futur hexagone
@@ -97,7 +97,7 @@ Hexagon* relativeHexagon(Hexagon map[BOX_Y][BOX_X], Hexagon start, int direction
     if (x < 0 || y < 0) return NULL;
     if (x >= BOX_X || y >= BOX_Y) return NULL;
 
-    // Only for this type of scheme
+    // Only for one type of scheme
     if (y == BOX_Y - 1 && !isColumnEven) return NULL;
 
     return &map[y][x];
