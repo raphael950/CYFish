@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define WIDTH 9
-#define LENGTH 9
+#define BOX_LENGTH 9 // Length of chars that form Hexagon
+#define BOX_WIDTH 5 // Width of chars that form Hexagon
+
+#define BOX_Y 3 // Always supposed to be > 1 because of map scheme
+#define BOX_X 9 // Always supposed to be > 0
+
+#define SCREEN_WIDTH (BOX_Y * BOX_WIDTH - BOX_Y + 1) // Explained with a map scheme
+#define SCREEN_LENGTH (BOX_LENGTH * (BOX_X / 2 + 1) + (BOX_LENGTH - 4) * (BOX_X / 2)) // Explained with a map scheme
 
 typedef struct {
     char fish;
@@ -17,10 +23,10 @@ Box boxBuilder(char fish, char playerId) {
 }
 
 // utile ?
-void generateFish(Box map[WIDTH][LENGTH], int minMonoPinguins) {
+void generateFish(Box map[BOX_Y][BOX_X], int minMonoPinguins) {
     int monoPinguinCount = 0;
-    for (int y = 0; y < WIDTH; ++y) {
-        for (int x = 0; x < LENGTH; ++x) {
+    for (int y = 0; y < BOX_Y; ++y) {
+        for (int x = 0; x < BOX_X; ++x) {
             int random = rand() % 3 + 2;
             map[y][x].fish = random;
             if (random == 1) monoPinguinCount++;
@@ -29,7 +35,7 @@ void generateFish(Box map[WIDTH][LENGTH], int minMonoPinguins) {
 
     // Remove fishes if they are too many, disturbing pinguins spawn
     while (monoPinguinCount < minMonoPinguins) {
-        int x = rand() % WIDTH, y = rand() % LENGTH;
+        int x = rand() % BOX_Y, y = rand() % BOX_X;
         if (map[y][x].fish != 1) {
             map[y][x].fish = 1;
             monoPinguinCount++;
@@ -38,8 +44,13 @@ void generateFish(Box map[WIDTH][LENGTH], int minMonoPinguins) {
 }
 
 
-void showMap(char map) {
-    // print les bordures et
+void showMap(char screen[SCREEN_WIDTH][SCREEN_LENGTH]) {
+    for (int y = 0; y < SCREEN_WIDTH; ++y) {
+        for (int x = 0; x < SCREEN_LENGTH; ++x) {
+            printf("%c", screen[y][x]);
+        }
+        printf("\n");
+    }
 }
 
 char penguinsNumber(char playerNumber) {
@@ -55,7 +66,10 @@ char penguinsNumber(char playerNumber) {
     }
 }
 
-void saveHexagon(char screen[WIDTH*4-1][9*(LENGTH/2 + 1) + 5*(LENGTH / 2)], int xOffset, int yOffset) {
+void saveOneHexagon(char screen[SCREEN_WIDTH][SCREEN_LENGTH], int xOffset, int yOffset) {
+
+    if (xOffset + BOX_LENGTH > SCREEN_LENGTH || yOffset + BOX_WIDTH > SCREEN_WIDTH) return;
+
     int x, y;
     for (y = yOffset; y < yOffset+5; y+=4) {
         for (x = xOffset + 2; x < xOffset + 7; ++x)
@@ -72,69 +86,32 @@ void saveHexagon(char screen[WIDTH*4-1][9*(LENGTH/2 + 1) + 5*(LENGTH / 2)], int 
     screen[4 + yOffset][1 + xOffset] = '\\';
 }
 
-void stockHexagones(char screen[WIDTH*4-1][9*(LENGTH/2 + 1) + 5*(LENGTH / 2)]) {
-    for (int y = 0; y < WIDTH*4-1; y+=4) {
-        for (int x = 0; x < 9*(LENGTH/2 + 1) + 5*(LENGTH / 2); x+=14) {
-            saveHexagon(screen, x, y);
-        }
-    }
+void saveHexagons(char screen[SCREEN_WIDTH][SCREEN_LENGTH]) {
 
-    for (int y = 2; y < WIDTH*4-1; y+=4) {
-        for (int x = 7; x < 9*(LENGTH/2 + 1) + 5*(LENGTH / 2); x+=14) {
-            saveHexagon(screen, x, y);
-        }
-    }
+    for (int y = 0; y < SCREEN_WIDTH; y+=BOX_WIDTH-1)
+        for (int x = 0; x < SCREEN_LENGTH; x+=14)
+            saveOneHexagon(screen, x, y);
 
-
-    saveHexagon(screen, 7, 2);
-    saveHexagon(screen, 7, 6);
-
+    for (int y = BOX_WIDTH / 2; y < SCREEN_WIDTH; y+=BOX_WIDTH-1)
+        for (int x = BOX_LENGTH - BOX_WIDTH / 2; x < SCREEN_LENGTH; x+=14)
+            saveOneHexagon(screen, x, y);
 }
 
 
 int main() {
-    Box map[WIDTH][LENGTH];
+    char screen[SCREEN_WIDTH][SCREEN_LENGTH] = {0};
 
-
-    char screen[WIDTH*4-1][9*(LENGTH/2 + 1) + 5*(LENGTH / 2)] = {0};
-
-    for (int y = 0; y < WIDTH*4-1; ++y) {
-        for (int x = 0; x < 9*(LENGTH/2 + 1) + 5*(LENGTH / 2); ++x) {
+    for (int y = 0; y < SCREEN_WIDTH; ++y) {
+        for (int x = 0; x < SCREEN_LENGTH; ++x) {
             screen[y][x] = ' ';
         }
     }
 
-    stockHexagones(screen);
-
-    printf("\n");
-
-    for (int y = 0; y < WIDTH*4-1; ++y) {
-        for (int x = 0; x < 9*(LENGTH/2 + 1) + 5*(LENGTH / 2); ++x) {
-            printf("%c", screen[y][x]);
-        }
-        printf("\n");
-    }
+    saveHexagons(screen);
+    showMap(screen);
 
     // TODO: ask player number >= 2 && <= 6
     int players = 6;
-
-    // Cases initialization
-    for (int y = 0; y < LENGTH; ++y) {
-        for (int x = 0; x < WIDTH; ++x) {
-            map[y][x] = boxBuilder(0, -1);
-        }
-    }
-
-
-    generateFish(map, penguinsNumber(players)*players);
-
-    for (int y = 0; y < LENGTH; ++y) {
-        for (int x = 0; x < WIDTH; ++x) {
-            printf("%d", map[y][x].fish);
-        }
-        printf("\n");
-    }
-
 
     return 0;
 }
