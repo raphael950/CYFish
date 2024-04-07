@@ -19,13 +19,20 @@
 #define MAX_FISHES 3
 
 typedef struct {
+    int x;
+    int y;
+} Coordinate;
+
+typedef struct {
     char fishes;
     char fishSlots[MAX_FISHES]; // slots of fishes between 0 and 17, -1 for no fish
     char playerId; // -1 if no player allowed, 0 if no player, else it's player id
-} Box;
+    Coordinate absoluteCoords; // cordonnes sur le plan parmis les autres hexagones
+} Hexagon;
 
-Box boxBuilder(char fishes, char* fishSlots, char playerId) {
-    Box box;
+
+Hexagon hexagonBuilder(char fishes, char* fishSlots, char playerId) {
+    Hexagon box;
     box.fishes = fishes;
 
     for (int i = 0; i < fishes; ++i) {
@@ -35,8 +42,9 @@ Box boxBuilder(char fishes, char* fishSlots, char playerId) {
     return box;
 }
 
-void showBox(Box box) {
-    printf("Box: \n");
+
+void showBox(Hexagon box) {
+    printf("Hexagon: \n");
     printf("- Fishes: %d\n- Slots: [", box.fishes);
     for (int i = 0; i < box.fishes; ++i) {
         printf("%d", box.fishSlots[i]);
@@ -52,11 +60,54 @@ void showBox(Box box) {
     }
 }
 
-void fillBlankMap(Box map[3][9]) {
+// On renvoie un Hexagon* pour pouvoir return NULL (aucun hexa dispo)
+Hexagon* relativeHexagon(Hexagon map[BOX_Y][BOX_X], Hexagon start, int direction) {
+
+    int x = start.absoluteCoords.x, y = start.absoluteCoords.y;
+    int isColumnEven = (x % 2 == 0);
+
+    // On modifie les coordonnes pour obtenir celles du futur hexagone
+    switch (direction) {
+        case 1:
+            y--;
+            break;
+        case 4:
+            y++;
+            break;
+        case 2:
+            if (isColumnEven) y--;
+            x++;
+            break;
+        case 3:
+            if (!isColumnEven) y++;
+            x++;
+            break;
+        case 5:
+            if (!isColumnEven) y++;
+            x--;
+            break;
+        case 6:
+            if (isColumnEven) y--;
+            x--;
+            break;
+        default:
+            return NULL;
+    }
+
+    if (x < 0 || y < 0) return NULL;
+    if (x >= BOX_X || y >= BOX_Y) return NULL;
+
+    // Only for this type of scheme
+    if (y == BOX_Y - 1 && !isColumnEven) return NULL;
+
+    return &map[y][x];
+}
+
+void fillBlankMap(Hexagon map[BOX_Y][BOX_X]) {
     for (int y = 0; y < BOX_Y; ++y) {
         for (int x = 0; x < BOX_X; ++x) {
 
-            map[y][x] = boxBuilder(0, NULL, 0);
+            map[y][x] = hexagonBuilder(0, NULL, 0);
             if (y == BOX_Y - 1 && x % 2 == 1) map[y][x].playerId = -1;
         }
     }
@@ -70,7 +121,7 @@ bool contains(char* tab, int len, char value) {
     return false;
 }
 
-void defineRandomFishSlots(Box* box) {
+void defineRandomFishSlots(Hexagon* box) {
     for (int i = 0; i < box->fishes; ++i) {
         int slot;
         do {
@@ -80,12 +131,12 @@ void defineRandomFishSlots(Box* box) {
     }
 }
 
-void generateFishes(Box map[BOX_Y][BOX_X], int minMonoPinguins) {
+void generateFishes(Hexagon map[BOX_Y][BOX_X], int minMonoPinguins) {
     int monoPinguinCount = 0;
     for (int y = 0; y < BOX_Y; ++y) {
         for (int x = 0; x < BOX_X; ++x) {
 
-            // Check if Box is in the map
+            // Check if Hexagon is in the map
             if(map[y][x].playerId != -1) {
                 char randomFishNumber = random(1, 3);
                 map[y][x].fishes = randomFishNumber;
@@ -107,7 +158,7 @@ void generateFishes(Box map[BOX_Y][BOX_X], int minMonoPinguins) {
     // Random fish slots
     for (int y = 0; y < BOX_Y; ++y) {
         for (int x = 0; x < BOX_X; ++x) {
-            // Check if Box is in the map
+            // Check if Hexagon is in the map
             if(map[y][x].playerId != -1) {
                 defineRandomFishSlots(&map[y][x]);
             }
@@ -127,7 +178,11 @@ void fillBlankScreen(char screen[SCREEN_WIDTH][SCREEN_LENGTH]) {
 void showScreen(char screen[SCREEN_WIDTH][SCREEN_LENGTH]) {
     for (int y = 0; y < SCREEN_WIDTH; ++y) {
         for (int x = 0; x < SCREEN_LENGTH; ++x) {
-            printf("%c", screen[y][x]);
+            char letter = screen[y][x];
+
+            if (letter == 'F') {
+                printf("🐟");
+            } else printf("%c", letter);
         }
         printf("\n");
     }
@@ -180,14 +235,14 @@ void saveHexagons(char screen[SCREEN_WIDTH][SCREEN_LENGTH]) {
 
 }
 
-void saveFishes(char screen[SCREEN_WIDTH][SCREEN_LENGTH], Box map[BOX_Y][BOX_X]) {
+void saveFishes(char screen[SCREEN_WIDTH][SCREEN_LENGTH], Hexagon map[BOX_Y][BOX_X]) {
     int xBox=0, yBox=0;
     for (int y = 0; y < SCREEN_WIDTH; y+=BOX_WIDTH/2) {
         for (int x = 0; x < SCREEN_LENGTH; x+=7) {
 
             if (y % 4 == 0 && x % 14 == 0 || y % 4 != 0 && x % 14 != 0) {
                 if (xBox < BOX_X && yBox < BOX_Y) {
-                    Box box = map[yBox][xBox];
+                    Hexagon box = map[yBox][xBox];
                     for (int i = 0; i < box.fishes; ++i) {
                         char slot = box.fishSlots[i];
                         if (slot < 5) screen[y+1][x+slot+2] = 'F';
@@ -195,7 +250,6 @@ void saveFishes(char screen[SCREEN_WIDTH][SCREEN_LENGTH], Box map[BOX_Y][BOX_X])
                         else if (slot < 11) screen[y+2][x+slot+1+1-5] = 'F';
                         else screen[y+3][x+slot+1-11] = 'F';
                     }
-                    printf("(%d, %d)\n", xBox, yBox);
                     xBox+=2;
                 }
             }
@@ -227,7 +281,7 @@ int main() {
     int players = askPlayers(2, 6);
 
 
-    Box map[BOX_Y][BOX_X];
+    Hexagon map[BOX_Y][BOX_X];
     char screen[SCREEN_WIDTH][SCREEN_LENGTH] = {0};
 
     fillBlankScreen(screen);
@@ -241,14 +295,7 @@ int main() {
     saveFishes(screen, map);
     showScreen(screen);
 
-
-    for (int y = 0; y < BOX_Y; ++y) {
-
-    }
-
-
-
-
+    scanf("%d");
 
     return 0;
 }
