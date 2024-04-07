@@ -1,21 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define BOX_LENGTH 9 // Length of chars that form Hexagon
 #define BOX_WIDTH 5 // Width of chars that form Hexagon
 
 #define BOX_Y 3 // Always supposed to be > 1 because of map scheme
-#define BOX_X 9 // Always supposed to be > 0
+#define BOX_X 9 // Always supposed to be > 0 and odd because of map scheme TODO: add odd support by fixing saveHexagons() first for loop x
 
 #define SCREEN_WIDTH (BOX_Y * BOX_WIDTH - BOX_Y + 1) // Explained with a map scheme
 #define SCREEN_LENGTH (BOX_LENGTH * (BOX_X / 2 + 1) + (BOX_LENGTH - 4) * (BOX_X / 2)) // Explained with a map scheme
 
 typedef struct {
+    bool isReachable;
     char fish;
     char playerId;
 } Box;
 
-Box boxBuilder(char fish, char playerId) {
+Box boxBuilder(bool isReachable, char fish, char playerId) {
     Box box;
     box.fish = fish;
     box.playerId = playerId;
@@ -44,12 +46,25 @@ void generateFish(Box map[BOX_Y][BOX_X], int minMonoPinguins) {
 }
 
 
-void showMap(char screen[SCREEN_WIDTH][SCREEN_LENGTH]) {
+void showScreen(char screen[SCREEN_WIDTH][SCREEN_LENGTH]) {
     for (int y = 0; y < SCREEN_WIDTH; ++y) {
         for (int x = 0; x < SCREEN_LENGTH; ++x) {
             printf("%c", screen[y][x]);
         }
         printf("\n");
+    }
+}
+
+void setupMap(Box map[BOX_Y][BOX_X]) {
+    for (int y = 0; y < BOX_Y; ++y) {
+        for (int x = 0; x < BOX_X; ++x) {
+
+            map[y][x] = boxBuilder(1, 0, -1);
+
+            if (y == BOX_Y - 1 && x % 2 == 1) {
+                map[y][x].isReachable = false;
+            }
+        }
     }
 }
 
@@ -88,17 +103,32 @@ void saveOneHexagon(char screen[SCREEN_WIDTH][SCREEN_LENGTH], int xOffset, int y
 
 void saveHexagons(char screen[SCREEN_WIDTH][SCREEN_LENGTH]) {
 
-    for (int y = 0; y < SCREEN_WIDTH; y+=BOX_WIDTH-1)
-        for (int x = 0; x < SCREEN_LENGTH; x+=14)
-            saveOneHexagon(screen, x, y);
+    for (int y = 0; y < SCREEN_WIDTH; y+=BOX_WIDTH/2) {
+        for (int x = 0; x < SCREEN_LENGTH; x+=7) {
+            if (y % 4 == 0 && x % 14 == 0 || y % 4 != 0 && x % 14 != 0) {
+                saveOneHexagon(screen, x, y);
+            }
+        }
+    }
 
-    for (int y = BOX_WIDTH / 2; y < SCREEN_WIDTH; y+=BOX_WIDTH-1)
-        for (int x = BOX_LENGTH - BOX_WIDTH / 2; x < SCREEN_LENGTH; x+=14)
-            saveOneHexagon(screen, x, y);
+}
+
+int askPlayers(int min, int max) {
+    int players, res = -1;
+    do {
+        printf("Combien de joueurs joueront à la partie ?");
+        res = scanf("%d", &players);
+        printf("\n");
+    } while (res < 1 || players < min || players > max);
+    return players;
 }
 
 
 int main() {
+
+    int players = askPlayers(2, 6);
+
+
     char screen[SCREEN_WIDTH][SCREEN_LENGTH] = {0};
 
     for (int y = 0; y < SCREEN_WIDTH; ++y) {
@@ -108,10 +138,10 @@ int main() {
     }
 
     saveHexagons(screen);
-    showMap(screen);
+    showScreen(screen);
 
-    // TODO: ask player number >= 2 && <= 6
-    int players = 6;
+
+
 
     return 0;
 }
