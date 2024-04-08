@@ -30,8 +30,7 @@ typedef struct {
     Coord absoluteLocation; // cordonnes sur le plan parmis les autres hexagones
 } Hexagon;
 
-
-Hexagon hexagonBuilder(char fishes, char* fishSlots, char playerId) {
+Hexagon hexagonBuilder(char fishes, char* fishSlots, char playerId, Coord location) {
     Hexagon box;
     box.fishes = fishes;
 
@@ -39,12 +38,13 @@ Hexagon hexagonBuilder(char fishes, char* fishSlots, char playerId) {
         box.fishSlots[i] = fishSlots[i];
     }
     box.playerId = playerId;
+    box.absoluteLocation = location;
     return box;
 }
 
 
 void showBox(Hexagon box) {
-    printf("Hexagon: \n");
+    printf("Hexagon (%d, %d): \n", box.absoluteLocation.x, box.absoluteLocation.y);
     printf("- Fishes: %d\n- Slots: [", box.fishes);
     for (int i = 0; i < box.fishes; ++i) {
         printf("%d", box.fishSlots[i]);
@@ -64,7 +64,7 @@ void showBox(Hexagon box) {
 Hexagon* relativeHexagon(Hexagon map[BOX_Y][BOX_X], Hexagon start, int direction) {
 
     int x = start.absoluteLocation.x, y = start.absoluteLocation.y;
-    int isColumnEven = (x % 2 == 0);
+    bool isColumnEven = (x % 2 == 0);
 
     // On modifie les coordonnes pour obtenir celles du futur hexagone
     switch (direction) {
@@ -98,16 +98,40 @@ Hexagon* relativeHexagon(Hexagon map[BOX_Y][BOX_X], Hexagon start, int direction
     if (x >= BOX_X || y >= BOX_Y) return NULL;
 
     // Only for one type of scheme
-    if (y == BOX_Y - 1 && !isColumnEven) return NULL;
+    if (y == BOX_Y - 1 && x % 2 != 0) return NULL;
 
     return &map[y][x];
+}
+
+Hexagon* farestHexagon(Hexagon map[BOX_Y][BOX_X], Hexagon start, int direction) {
+    Hexagon* farestHexagon = relativeHexagon(map, start, direction);
+
+    if (farestHexagon == NULL) return NULL;
+
+
+    while (relativeHexagon(map, *farestHexagon, direction) != NULL) {
+        farestHexagon = relativeHexagon(map, *farestHexagon, direction);
+    }
+    return farestHexagon;
+}
+
+Hexagon* getHexagonAtDistance(Hexagon map[BOX_Y][BOX_X], Hexagon* start, int direction, int distance) {
+    if (start == NULL) return NULL;
+    Hexagon* newHexagon = start;
+    for (int i = 0; i < distance; ++i) {
+        newHexagon = relativeHexagon(map, *newHexagon, direction);
+        if (newHexagon == NULL) return NULL;
+    }
+    return newHexagon;
 }
 
 void fillBlankMap(Hexagon map[BOX_Y][BOX_X]) {
     for (int y = 0; y < BOX_Y; ++y) {
         for (int x = 0; x < BOX_X; ++x) {
-
-            map[y][x] = hexagonBuilder(0, NULL, 0);
+            Coord loc;
+            loc.x = x;
+            loc.y = y;
+            map[y][x] = hexagonBuilder(0, NULL, 0, loc);
             if (y == BOX_Y - 1 && x % 2 == 1) map[y][x].playerId = -1;
         }
     }
@@ -295,7 +319,9 @@ int main() {
     saveFishes(screen, map);
     showScreen(screen);
 
-    scanf("%d");
+    showBox(map[0][0]);
+    Hexagon dist = *getHexagonAtDistance(map, &(map[0][0]), 3, 4);
+    showBox(dist);
 
     return 0;
 }
