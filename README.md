@@ -20,9 +20,12 @@ deplacement:
 - 1 pingouin par tour, au moins 1 case:
 > choix du pingouin à déplacer -> direction de déplacement (sur 6) -> distance de déplacement
 > placement valide ? (1 pingouin max par case + pas en dehors de la map + case non vide + interdit de traverser une case non vide)
+> 
 > placement non valide => redemander
-aucun déplacement possible => tour passé
-déplacement validé -> tp le pingouin, suppr ancienne case et ajouter poissons ancienne case
+> 
+> aucun déplacement possible => tour passé
+> 
+> déplacement validé -> tp le pingouin, suppr ancienne case et ajouter poissons ancienne case
 
 fin de jeu -> plus aucun joueur ne peut bouger
 afficher gagnant et scores
