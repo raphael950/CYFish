@@ -1,4 +1,4 @@
-
+all: exec
 
 exec: main.o player.o map.o
 	gcc -o exec main.o player.o map.o
@@ -11,3 +11,9 @@ player.o : player.c player.h
 
 map.o: map.c map.h
 	gcc -o map.o -c map.c
+
+clean:
+	rm -f *.o
+
+mrproper: clean
+	rm -f exec

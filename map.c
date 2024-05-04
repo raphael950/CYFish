@@ -57,23 +57,30 @@ Box* getBox(Map* map, Coord coord) {
 }
 
 Box* getRelativeBox(Map* map, Coord coord, Direction direction) {
+    int isColumnEven = coord.y % 2 == 0;
     switch (direction) {
         case WEST:
             coord.x--;
+            break;
         case EAST:
             coord.x++;
+            break;
         case NORTHWEST:
-            if (coord.y % 2 == 1) coord.x--; 
+            if (!isColumnEven) coord.x--;
             coord.y++;
+            break;
         case NORTHEAST:
-            if (coord.y % 2 == 0) coord.x++;
+            if (isColumnEven) coord.x++;
             coord.y++;
+            break;
         case SOUTHWEST:
-            if (coord.y % 2 == 1) coord.x--;
+            if (!isColumnEven) coord.x--;
             coord.y--;
+            break;
         case SOUTHEAST:
-            if (coord.y % 2 == 0) coord.x++;
+            if (isColumnEven) coord.x++;
             coord.y--;
+            break;
         default:
             return NULL;
     }
@@ -95,7 +102,7 @@ Box* getDistancedRelativeBox(Map* map, Coord coord, Direction direction, int dis
     if (distance == 0) return getBox(map, coord);
     Box* relative = getRelativeBox(map, coord, direction);
     if (relative == NULL) return NULL;
-    return getRecursiveRelativeBox(map, relative->coord, direction, distance-1);
+    return getDistancedRelativeBox(map, relative->coord, direction, distance-1);
 }
 
 void showBox(Box* box) {
