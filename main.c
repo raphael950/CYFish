@@ -26,6 +26,9 @@ int main() {
     Map* map = mapBuilder(penguins, 3, 9);
     showMap(map);
 
+    for (int i = 0; i < map->nBoxes; i++) {
+        free(map->boxes[i].fishValues);
+    }
     free(map->boxes);
     free(map);
     free(players);
