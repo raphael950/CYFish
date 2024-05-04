@@ -90,12 +90,12 @@ int getAvailableSteps(Map* map, Coord coord, Direction direction) {
     return steps;
 }
 
-Box* getRecursiveRelativeBox(Map* map, Coord coord, Direction direction, int steps) {
-    if (steps < 0) return NULL;
-    if (steps == 0) return getBox(map, coord);
+Box* getDistancedRelativeBox(Map* map, Coord coord, Direction direction, int distance) {
+    if (distance < 0) return NULL;
+    if (distance == 0) return getBox(map, coord);
     Box* relative = getRelativeBox(map, coord, direction);
     if (relative == NULL) return NULL;
-    return getRecursiveRelativeBox(map, relative->coord, direction, steps-1);
+    return getRecursiveRelativeBox(map, relative->coord, direction, distance-1);
 }
 
 void showBox(Box* box) {
