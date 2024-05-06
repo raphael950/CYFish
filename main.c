@@ -24,6 +24,7 @@ int main() {
     int penguins = nbPlayers*penguinsNumber(nbPlayers);
     printf("Penguins: %d\n", penguins);
     Map* map = mapBuilder(penguins, 3, 9);
+
     showMap(map);
 
     for (int i = 0; i < map->nBoxes; i++) {

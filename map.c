@@ -13,14 +13,18 @@ Coord coordBuilder(int x, int y) {
 
 Map* mapBuilder(int penguins, int width, int length) {
     Map* map = malloc(sizeof(Map));
+    if (map == NULL) exit(1);
     int nBoxes = length*width - (width - width / 2); // remove number of odd lines
-
+    map->nBoxes = nBoxes;
     map->boxes = malloc(nBoxes*sizeof(Map));
+    if (map->boxes == NULL) exit(1);
 
     int spawnPoints = 0;
     for (int i = 0; i<nBoxes; i++) {
         Box* box = map->boxes + i;
         box->fishes = random(1, 3);
+        box->fishValues = malloc(sizeof(int)*box->fishes);
+        if (box->fishValues == NULL) exit(1);
         for (int j = 0; j < box->fishes; j++) {
             box->fishValues[j] = random(1, 3);
         }
@@ -30,15 +34,20 @@ Map* mapBuilder(int penguins, int width, int length) {
     while (spawnPoints < penguins) {
         Box* randomBox;
         do {
-            randomBox = map->boxes + random(0, map->nBoxes-1);
+            randomBox = map->boxes + random(0, nBoxes-1);
         } while (randomBox->fishes == 1 && randomBox->fishValues[0] == 1);
         randomBox->fishes = 1;
+        free(randomBox->fishValues);
+        randomBox->fishValues = malloc(sizeof(int));
+        if (randomBox->fishValues == NULL) exit(1);
         randomBox->fishValues[0] = 1;
         spawnPoints++;
+        
     }
 
     map->length = length;
     map->width = width;
+    
     return map;
 }
 
