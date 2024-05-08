@@ -41,7 +41,7 @@ int main() {
 
 
     for (int i = 0; i < map->nBoxes; i++) {
-        free((map->boxes + i)->fishValues);
+        free(map->boxes[i].fishValues);
         free(map->boxes + i);
     }
     free(map);
