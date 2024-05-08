@@ -11,38 +11,41 @@ Coord coordBuilder(int x, int y) {
     return coord;
 }
 
+int isSpawnpoint(Box* box) {
+    return box != NULL && box->playerId == -1 && box->fishes == 1 && box->fishValues[0] == 1;
+}
+
 Map* mapBuilder(int penguins, int width, int length) {
     Map* map = malloc(sizeof(Map));
     if (map == NULL) exit(1);
     int nBoxes = length*width - (width - width / 2); // remove number of odd lines
     map->nBoxes = nBoxes;
-    map->boxes = malloc(nBoxes*sizeof(Map));
+    map->boxes = malloc(nBoxes*sizeof(Box));
     if (map->boxes == NULL) exit(1);
 
     int spawnPoints = 0;
     for (int i = 0; i<nBoxes; i++) {
         Box* box = map->boxes + i;
+        box->playerId = -1;
         box->fishes = random(1, 3);
         box->fishValues = malloc(sizeof(int)*box->fishes);
         if (box->fishValues == NULL) exit(1);
         for (int j = 0; j < box->fishes; j++) {
             box->fishValues[j] = random(1, 3);
         }
-        if (box->fishes == 1 && box->fishValues[0] == 1) spawnPoints++;
+        if (isSpawnpoint(box)) spawnPoints++;
     }
 
     while (spawnPoints < penguins) {
         Box* randomBox;
         do {
             randomBox = map->boxes + random(0, nBoxes-1);
-        } while (randomBox->fishes == 1 && randomBox->fishValues[0] == 1);
+        } while (isSpawnpoint(randomBox));
         randomBox->fishes = 1;
-        free(randomBox->fishValues);
-        randomBox->fishValues = malloc(sizeof(int));
+        randomBox->fishValues = realloc(randomBox->fishValues, sizeof(int));
         if (randomBox->fishValues == NULL) exit(1);
         randomBox->fishValues[0] = 1;
         spawnPoints++;
-        
     }
 
     map->length = length;
@@ -63,6 +66,11 @@ Box* getBox(Map* map, Coord coord) {
     i += (coord.y / 2) * map->length;
     i += (coord.y - coord.y/2) * (map->length-1);
     return map->boxes + i;
+}
+
+Box* getBoxFromId(Map* map, int boxId) {
+    if (boxId < 0 || boxId >= map->nBoxes) return NULL;
+    return map->boxes + boxId;
 }
 
 Box* getRelativeBox(Map* map, Coord coord, Direction direction) {

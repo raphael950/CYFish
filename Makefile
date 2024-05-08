@@ -1,10 +1,13 @@
 all: exec
 
-exec: main.o player.o map.o
-	gcc -o exec main.o player.o map.o
+exec: main.o player.o map.o penguin.o
+	gcc -o exec main.o player.o map.o penguin.o
 
-main.o : main.c player.h map.h
+main.o : main.c player.h map.h penguin.h
 	gcc -o main.o -c main.c
+
+penguin.o: penguin.c penguin.h
+	gcc -o penguin.o -c penguin.c
 
 player.o : player.c player.h
 	gcc -o player.o -c player.c
