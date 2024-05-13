@@ -6,43 +6,29 @@
 #include <stdio.h>
 #include <ncurses.h>
 
-void printHexa(int xOffset, int yOffset) {
-    mvaddch(yOffset, xOffset + 3, '/');
-    mvaddch(yOffset, xOffset + 5, '\\');
-    mvaddch(yOffset + 1, xOffset + 1, '/');
-    mvaddch(yOffset + 1, xOffset + 7, '\\');
-    mvaddch(yOffset + 2, xOffset, '|');
-    mvaddch(yOffset + 2, xOffset + 8, '|');
-    mvaddch(yOffset + 3, xOffset + 3, ' ');
-    mvaddch(yOffset + 3, xOffset + 1, '\\');
-    mvaddch(yOffset + 3, xOffset + 7, '/');
-    mvaddch(yOffset + 4, xOffset + 3, '\\');
-    mvaddch(yOffset + 4, xOffset + 5, '/');
-}
-
-void printBox(Box* box, int printBorder, int printFishes) {
+void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
     if (box == NULL) return;
     int x = box->coord.x, y = box->coord.y;
     int yOffset = y*3;
     int xOffset = x*8 + (y%2==0)*4;
     if (printBorder) {
-        mvaddch(yOffset, xOffset + 3, '/');
-        mvaddch(yOffset, xOffset + 5, '\\');
-        mvaddch(yOffset + 1, xOffset + 1, '/');
-        mvaddch(yOffset + 1, xOffset + 7, '\\');
-        mvaddch(yOffset + 2, xOffset, '|');
-        mvaddch(yOffset + 2, xOffset + 8, '|');
-        mvaddch(yOffset + 3, xOffset + 3, ' ');
-        mvaddch(yOffset + 3, xOffset + 1, '\\');
-        mvaddch(yOffset + 3, xOffset + 7, '/');
-        mvaddch(yOffset + 4, xOffset + 3, '\\');
-        mvaddch(yOffset + 4, xOffset + 5, '/');
+        mvwaddch(mapWin, yOffset, xOffset + 3, '/');
+        mvwaddch(mapWin, yOffset, xOffset + 5, '\\');
+        mvwaddch(mapWin, yOffset + 1, xOffset + 1, '/');
+        mvwaddch(mapWin, yOffset + 1, xOffset + 7, '\\');
+        mvwaddch(mapWin, yOffset + 2, xOffset, '|');
+        mvwaddch(mapWin, yOffset + 2, xOffset + 8, '|');
+        mvwaddch(mapWin, yOffset + 3, xOffset + 3, ' ');
+        mvwaddch(mapWin, yOffset + 3, xOffset + 1, '\\');
+        mvwaddch(mapWin, yOffset + 3, xOffset + 7, '/');
+        mvwaddch(mapWin, yOffset + 4, xOffset + 3, '\\');
+        mvwaddch(mapWin, yOffset + 4, xOffset + 5, '/');
     }
     if (printFishes && box->fishes > 0) {
 
     }
     if (box->playerId >= 0) {
-        mvprintw(yOffset + 2, xOffset + 3, "🐧");
+        mvwprintw(mapWin, yOffset + 2, xOffset + 3, "🐧");
     }
 }
 
@@ -54,7 +40,17 @@ int main() {
     printf("Penguins: %d\n", penguins);
     Map* map = mapBuilder(penguins*nbPlayers, 9, 9);
 
-    //showMap(map);
+    initscr();
+    int mapWinHeight = 5 + (map->width - 1) * 3;
+    int mapWinLength = map->length * 8 + 1;
+
+    WINDOW* mapWin = newwin(mapWinHeight, mapWinLength, 0, 0);
+    refresh();
+    box(mapWin, 0, 0);
+
+    for (int i = 0; i < map->nBoxes; ++i) {
+        printBox(map->boxes + i, mapWin, 1, 1);
+    }
 
     /*
     // Placement des pingouins
@@ -70,31 +66,8 @@ int main() {
                 box->playerId = p - players;
             }
     }*/
-    /*
-    // Affichage temporaire des playerId pour les test
-    for (int y = 0; y < map->width; y++) {
-        for (int x = 0; x < map->length; x++) {
-            Box* box = getBox(map, coordBuilder(x, y));
-            if (box == NULL) continue;
-            printf("%d ", box->playerId);
-        }
-        printf("\n");
-    }*/
 
-    int mapDisplayHeight, mapDisplayLength;
-    mapDisplayHeight = (map->width / 2) * 5 + (map->width - map->width / 2) * 3;
-    mapDisplayLength = map->width * 8 + 1;
-
-    initscr();              // Initialise la structure WINDOW et autres paramètres
-
-    for (int y = 0; y < map->width; ++y) {
-        for (int x = 0; x < map->length; ++x) {
-            Box* box = getBox(map, coordBuilder(x, y));
-            if (box == NULL) continue;
-            printBox(box, 1, 1);
-        }
-    }
-
+    wrefresh(mapWin);
     refresh();              // Rafraîchit la fenêtre courante afin de voir le message apparaître
     curs_set(0);
     getch();                // On attend que l'utilisateur appui sur une touche pour quitter
