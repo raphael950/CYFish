@@ -18,22 +18,32 @@ int isSpawnpoint(Box* box) {
 Map* mapBuilder(int penguins, int width, int length) {
     Map* map = malloc(sizeof(Map));
     if (map == NULL) exit(1);
+
+    map->length = length;
+    map->width = width;
+
     int nBoxes = length*width - (width - width / 2); // remove number of odd lines
     map->nBoxes = nBoxes;
+
     map->boxes = malloc(nBoxes*sizeof(Box));
     if (map->boxes == NULL) exit(1);
 
     int spawnPoints = 0;
-    for (int i = 0; i<nBoxes; i++) {
-        Box* box = map->boxes + i;
-        box->playerId = -1;
-        box->fishes = random(1, 3);
-        box->fishValues = malloc(sizeof(int)*box->fishes);
-        if (box->fishValues == NULL) exit(1);
-        for (int j = 0; j < box->fishes; j++) {
-            box->fishValues[j] = random(1, 3);
+    for (int y = 0; y < width; ++y) {
+        for (int x = 0; x < length; ++x) {
+            Coord coord = coordBuilder(x, y);
+            Box* box = getBox(map, coord);
+            if (box == NULL) continue;
+            box->coord = coord;
+            box->playerId = -1;
+            box->fishes = random(1, 3);
+            box->fishValues = malloc(sizeof(int)*box->fishes);
+            if (box->fishValues == NULL) exit(1);
+            for (int j = 0; j < box->fishes; j++) {
+                box->fishValues[j] = random(1, 3);
+            }
+            if (isSpawnpoint(box)) spawnPoints++;
         }
-        if (isSpawnpoint(box)) spawnPoints++;
     }
 
     while (spawnPoints < penguins) {
@@ -47,9 +57,6 @@ Map* mapBuilder(int penguins, int width, int length) {
         randomBox->fishValues[0] = 1;
         spawnPoints++;
     }
-
-    map->length = length;
-    map->width = width;
     
     return map;
 }

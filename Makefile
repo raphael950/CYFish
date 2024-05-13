@@ -1,7 +1,7 @@
 all: exec
 
 exec: main.o player.o map.o penguin.o
-	gcc -o exec main.o player.o map.o penguin.o
+	gcc -o exec main.o player.o map.o penguin.o -lncurses
 
 main.o : main.c player.h map.h penguin.h
 	gcc -o main.o -c main.c
