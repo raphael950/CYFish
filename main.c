@@ -22,22 +22,23 @@ void removeHighlightBox(Box* box, WINDOW* mapWin) {
 
     wrefresh(mapWin);
 }
-void highlightBox(Box* box, WINDOW* mapWin) {
+void highlightBox(Box* box, WINDOW* mapWin, int color) {
     if (box == NULL) return;
     int x = box->coord.x, y = box->coord.y;
     int yOffset = y*3;
     int xOffset = x*8 + (y%2==0)*4;
 
-    mvwchgat(mapWin, yOffset, xOffset + 4, 1, A_NORMAL, 8, NULL);
-    mvwchgat(mapWin, yOffset + 1, xOffset + 2, 5, A_NORMAL, 8, NULL);
-    mvwchgat(mapWin, yOffset + 2, xOffset + 1, 7, A_NORMAL, 8, NULL);
-    mvwchgat(mapWin, yOffset + 3, xOffset + 2, 5, A_NORMAL, 8, NULL);
-    mvwchgat(mapWin, yOffset + 4, xOffset + 4, 1, A_NORMAL, 8, NULL);
+    mvwchgat(mapWin, yOffset, xOffset + 4, 1, A_NORMAL, color, NULL);
+    mvwchgat(mapWin, yOffset + 1, xOffset + 2, 5, A_NORMAL, color, NULL);
+    mvwchgat(mapWin, yOffset + 2, xOffset + 1, 7, A_NORMAL, color, NULL);
+    mvwchgat(mapWin, yOffset + 3, xOffset + 2, 5, A_NORMAL, color, NULL);
+    mvwchgat(mapWin, yOffset + 4, xOffset + 4, 1, A_NORMAL, color, NULL);
 
     wrefresh(mapWin);
 }
 
 void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
+    // TODO: higlight if player on it
     if (box == NULL) return;
     int x = box->coord.x, y = box->coord.y;
     int yOffset = y*3;
@@ -56,13 +57,23 @@ void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
         mvwaddch(mapWin, yOffset + 4, xOffset + 5, '/');
     }
     if (printFishes && box->fishes > 0) {
-
+        //mvwprintw(mapWin, yOffset, xOffset+4, "\U0001f41f");
+        for (int i = 0; i < box->fishes; ++i) {
+            int yFish = i;
+            int xFish;
+            if (yFish == 1) {
+                xFish = rand() % 3 + 1;
+                if (xFish == 2) xFish = 6;
+            } else {
+                xFish = rand() % 4 + 2;
+            }
+            mvwprintw(mapWin, yOffset + yFish + 1, xOffset + xFish, "\U0001f41f");
+        }
     }
     if (box->playerId >= 0) {
-        wchar_t peng[] = L"🐧";
-        attron(COLOR_PAIR(box->playerId + 1));
-        mvwprintw(mapWin, yOffset + 2, xOffset + 3, "\U0001f427 a");
-        attroff(COLOR_PAIR(box->playerId + 1));
+        attron(COLOR_PAIR(4));
+        mvwprintw(mapWin, yOffset + 2, xOffset + 3, "\U0001f427");
+        attroff(COLOR_PAIR(4));
         //mvwprintw(mapWin, yOffset + 2, xOffset + 3, "");
     }
     wrefresh(mapWin);
@@ -81,6 +92,7 @@ int main() {
     start_color();
     use_default_colors();
 
+    /*
     init_pair(1, COLOR_RED, COLOR_BLACK);
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
     init_pair(3, COLOR_YELLOW, COLOR_BLACK);
@@ -88,6 +100,15 @@ int main() {
     init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
     init_pair(6, COLOR_CYAN, COLOR_BLACK);
     init_pair(7, COLOR_WHITE, COLOR_BLACK);
+
+        */
+    init_pair(1, COLOR_WHITE, COLOR_RED);
+    init_pair(2, COLOR_WHITE, COLOR_GREEN);
+    init_pair(3, COLOR_WHITE, COLOR_YELLOW);
+    init_pair(4, COLOR_WHITE, COLOR_BLUE);
+    init_pair(5, COLOR_WHITE, COLOR_MAGENTA);
+    init_pair(6, COLOR_WHITE, COLOR_CYAN);
+    init_pair(7, COLOR_WHITE, COLOR_WHITE);
     init_pair(8, COLOR_WHITE, COLOR_BLUE);
 
 
@@ -114,22 +135,31 @@ int main() {
     // Placement des pingouins
     for (int i = 0; i < penguins; i++) {
             for (Player* p = players; p < players + nbPlayers; p++) {
+
+                int playerId = p - players;
+
                 mvwprintw(popUp, 1, 1, "C'est au tour de %s de séléctionner l'emplacement de son pingouin", p->name);
                 wrefresh(popUp);
                 Coord coord = coordBuilder(0, 0);
                 Box* box = getBox(map, coord);
-                highlightBox(box, mapWin);
+                highlightBox(box, mapWin, playerId + 1);
                 int key;
                 do {
                     key = getch();
                     switch (key) {
                         case KEY_UP:
-                        case 66: // up
-                            coord.y += 1;
+                        case 65: // up
+                            if (coord.x+1 == map->length && coord.y % 2 == 1)
+                                coord.y--;
+                            coord.y --;
+                            mvwprintw(popUp, 1, 1, "key: %d\n", key);
+                            wrefresh(popUp);
                             break;
                         case KEY_DOWN:
-                        case 65: // down
-                            coord.y -= 1;
+                        case 66: // down
+                            if (coord.x+1 == map->length && coord.y % 2 == 1)
+                                coord.y++;
+                            coord.y++;
                             break;
                         case KEY_RIGHT:
                         case 67: // right
@@ -154,16 +184,16 @@ int main() {
                         coord = box->coord;
                         continue;
                     }
-                    removeHighlightBox(box, mapWin);
+                    if (box->playerId == -1) removeHighlightBox(box, mapWin);
                     box = newBox;
-                    highlightBox(box, mapWin);
+                    highlightBox(box, mapWin, playerId + 1);
                     if ((key == KEY_ENTER || key == 10) && !isSpawnpoint(box)) {
-                        mvwprintw(popUp, 1, 1, "%s prenez une autre case, celle-ci n'est pas valide");
+                        mvwprintw(popUp, 1, 1, "%s prenez une autre case, celle-ci n'est pas valide", p->name);
                         wrefresh(popUp);
                     }
                 } while ((key != KEY_ENTER && key != 10) || !isSpawnpoint(box));
-                removeHighlightBox(box, mapWin);
-                box->playerId = p - players;
+                //removeHighlightBox(box, mapWin);
+                box->playerId = playerId;
                 printBox(box, mapWin, 0, 0);
             }
     }
