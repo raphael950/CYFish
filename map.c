@@ -1,6 +1,7 @@
 #include "map.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <ncurses.h>
 
 #define random(min, max) (rand() % (max-min+1) + min)
 
@@ -22,6 +23,13 @@ Map* mapBuilder(int penguins, int width, int length) {
     map->length = length;
     map->width = width;
 
+
+    int mapWinHeight = 5 + (map->width - 1) * 3;
+    int mapWinLength = map->length * 8 + 1;
+
+    map->mapWin = newwin(mapWinHeight, mapWinLength, 0, 0);
+    if (map->mapWin == NULL) exit(1);
+
     int nBoxes = length*width - (width - width / 2); // remove number of odd lines
     map->nBoxes = nBoxes;
 
@@ -34,6 +42,7 @@ Map* mapBuilder(int penguins, int width, int length) {
             Coord coord = coordBuilder(x, y);
             Box* box = getBox(map, coord);
             if (box == NULL) continue;
+            box->isDead = 0;
             box->coord = coord;
             box->playerId = -1;
             box->fishes = random(1, 3);
@@ -125,20 +134,108 @@ Box* getDistancedRelativeBox(Map* map, Coord coord, Direction direction, int dis
     if (distance < 0) return NULL;
     if (distance == 0) return getBox(map, coord);
     Box* relative = getRelativeBox(map, coord, direction);
-    if (relative == NULL) return NULL;
+    if (relative == NULL || relative->isDead || relative->playerId != -1) return NULL;
     return getDistancedRelativeBox(map, relative->coord, direction, distance-1);
 }
 
-void showBox(Box* box) {
+void highlightBox(Box* box, WINDOW* mapWin, int color) {
     if (box == NULL) return;
-    printf("%d ", box->fishes);
+    int x = box->coord.x, y = box->coord.y;
+    int yOffset = y*3;
+    int xOffset = x*8 + (y%2==0)*4;
+
+    mvwchgat(mapWin, yOffset, xOffset + 4, 1, A_NORMAL, color, NULL);
+    mvwchgat(mapWin, yOffset + 1, xOffset + 2, 5, A_NORMAL, color, NULL);
+    mvwchgat(mapWin, yOffset + 2, xOffset + 1, 7, A_NORMAL, color, NULL);
+    mvwchgat(mapWin, yOffset + 3, xOffset + 2, 5, A_NORMAL, color, NULL);
+    mvwchgat(mapWin, yOffset + 4, xOffset + 4, 1, A_NORMAL, color, NULL);
+
+    wrefresh(mapWin);
 }
 
-void showMap(Map* map) {
-    for (int y = 0; y < map->width; y++) {
-        for (int x = 0; x < map->length; x++) {
-            showBox(getBox(map, coordBuilder(x, y)));
+void removeHighlightBox(Box* box, WINDOW* mapWin) {
+    highlightBox(box, mapWin, 10);
+}
+
+void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
+    // TODO: higlight if player on it
+    if (box == NULL) return;
+    int x = box->coord.x, y = box->coord.y;
+    int yOffset = y*3;
+    int xOffset = x*8 + (y%2==0)*4;
+    if (printBorder) {
+        wattron(mapWin, COLOR_PAIR(10));
+        mvwaddch(mapWin, yOffset, xOffset + 3, '/');
+        mvwaddch(mapWin, yOffset, xOffset + 5, '\\');
+        mvwaddch(mapWin, yOffset + 1, xOffset + 1, '/');
+        mvwaddch(mapWin, yOffset + 1, xOffset + 7, '\\');
+        mvwaddch(mapWin, yOffset + 2, xOffset, '|');
+        mvwaddch(mapWin, yOffset + 2, xOffset + 8, '|');
+        mvwaddch(mapWin, yOffset + 3, xOffset + 3, ' ');
+        mvwaddch(mapWin, yOffset + 3, xOffset + 1, '\\');
+        mvwaddch(mapWin, yOffset + 3, xOffset + 7, '/');
+        mvwaddch(mapWin, yOffset + 4, xOffset + 3, '\\');
+        mvwaddch(mapWin, yOffset + 4, xOffset + 5, '/');
+        wattroff(mapWin, COLOR_PAIR(10));
+    }
+
+    if (printFishes && box->fishes > 0) {
+        //mvwprintw(mapWin, yOffset, xOffset+4, "\U0001f41f");
+        for (int i = 0; i < box->fishes; ++i) {
+            int yFish = i;
+            int xFish;
+            if (yFish == 1) {
+                xFish = rand() % 3 + 1;
+                if (xFish == 3) xFish = 6;
+            } else {
+                xFish = rand() % 4 + 2;
+            }
+            if (isSpawnpoint(box)) {
+                mvwprintw(mapWin, yOffset + yFish + 1, xOffset + xFish, "\U0001f433");
+            } else mvwprintw(mapWin, yOffset + yFish + 1, xOffset + xFish, "\U0001f41f");
         }
-        printf("\n");
+    }
+    if (box->playerId >= 0) {
+        mvwprintw(mapWin, yOffset + 2, xOffset + 3, "\U0001f427");
+        highlightBox(box, mapWin, box->playerId + 1);
+    } else {
+        //mvwprintw(mapWin, yOffset + 2, xOffset + 3, "\U0001f969");
+        removeHighlightBox(box, mapWin);
+    }
+    wrefresh(mapWin);
+}
+
+/*
+ *
+ * Return 0 if no key was useful, 1 if a key was a movement and 2 if the key was enter.
+ *
+ */
+int boxSelection(int key, Map* map, Coord* coord) {
+    switch (key) {
+        case KEY_UP:
+        case 65: // up
+            if (coord->x+1 == map->length && coord->y % 2 == 1)
+                coord->y--;
+            coord->y --;
+            return 1;
+        case KEY_DOWN:
+        case 66: // down
+            if (coord->x+1 == map->length && coord->y % 2 == 1)
+                coord->y++;
+            coord->y++;
+            return 1;
+        case KEY_RIGHT:
+        case 67: // right
+            coord->x += 1;
+            return 1;
+        case KEY_LEFT:
+        case 68: // left
+            coord->x -= 1;
+            return 1;
+        case KEY_ENTER:
+        case 10:
+            return 2;
+        default:
+            return 0;
     }
 }
