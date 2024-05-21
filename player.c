@@ -122,7 +122,7 @@ int turn(Player* player, Map* map) {
     printMessage("C'est au tour de %s de jouer", player->name);
 
 
-    for (int i = 0; i < nPenguins; ++i) {
+    for (int i = 1; i < nPenguins; ++i) {
         // remove higlight of all boxes
         removeHighlightBox(penguins[i], map->mapWin);
     }
