@@ -28,16 +28,37 @@ int main() {
 
 
     Map* map = mapBuilder(penguins*nbPlayers, 9, 9);
+    
+    
+    init_color(1, 600, 800, 1000); // Bleu
+    init_color(2, 600, 1000, 600); // Vert
+    init_color(3, 1000, 600, 600); // Rouge
+    init_color(4, 600, 600, 1000); // Violet
+    init_color(5, 1000, 1000, 600); // Jaune
+    init_color(6, 600, 1000, 1000); // Cyan
 
-    init_pair(1, COLOR_WHITE, COLOR_RED);
-    init_pair(2, COLOR_WHITE, COLOR_GREEN);
-    init_pair(3, COLOR_WHITE, COLOR_YELLOW);
-    init_pair(4, COLOR_WHITE, COLOR_BLUE);
-    init_pair(5, COLOR_WHITE, COLOR_MAGENTA);
-    init_pair(6, COLOR_WHITE, COLOR_CYAN);
-    init_pair(7, COLOR_WHITE, COLOR_WHITE);
-    init_pair(8, COLOR_WHITE, COLOR_BLUE);
-    init_pair(10, COLOR_BLACK, COLOR_WHITE);
+    init_color(7, 500, 700, 900); // Bleu Foncé
+    init_color(8, 500, 900, 500); // Vert Foncé
+    init_color(9, 900, 500, 500); // Rouge Foncé
+    init_color(10, 500, 500, 900); // Violet Foncé
+    init_color(11, 900, 900, 500); // Jaune Foncé
+    init_color(12, 500, 900, 900); // Cyan Foncé
+
+    init_color(13, 900, 900, 900); // Blanc
+
+    init_pair(1, COLOR_WHITE, 1);
+    init_pair(2, COLOR_WHITE, 2);
+    init_pair(3, COLOR_WHITE, 3);
+    init_pair(4, COLOR_WHITE, 4);
+    init_pair(5, COLOR_WHITE, 5);
+    init_pair(6, COLOR_WHITE, 6);
+    init_pair(7, COLOR_WHITE, 7);
+    init_pair(8, COLOR_WHITE, 8);
+    init_pair(9, COLOR_WHITE, 9);
+    init_pair(10, COLOR_WHITE, 10);
+    init_pair(11, COLOR_WHITE, 11);
+    init_pair(12, COLOR_WHITE, 12);
+    init_pair(13, COLOR_BLACK, 13);
 
     WINDOW* popUp = getMessageWindow();
 

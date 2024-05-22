@@ -75,8 +75,8 @@ Box* penguinSelection(Map* map, int playerId, Box* from, int key) {
             }
         }
         // return first box of player from the begining
-        if (from == (map->boxes - 1)) return NULL; // no box found
-        return penguinSelection(map, playerId, map->boxes - 1, key);
+        //if (from == (map->boxes - 1)) return NULL; // no box found
+        //return penguinSelection(map, playerId, map->boxes - 1, key);
 
     }
     if (key == KEY_LEFT || key == 68) {
@@ -86,8 +86,8 @@ Box* penguinSelection(Map* map, int playerId, Box* from, int key) {
             }
         }
         // return last box of player from the end
-        if (from == (map->nBoxes + map->boxes)) return NULL; // no box found
-        return penguinSelection(map, playerId, map->boxes + map->nBoxes, key);
+        //if (from == (map->nBoxes + map->boxes)) return NULL; // no box found
+        //return penguinSelection(map, playerId, map->boxes + map->nBoxes, key);
     }
     // bad key
     return from;
@@ -122,10 +122,10 @@ int turn(Player* player, Map* map) {
     printMessage("C'est au tour de %s de jouer", player->name);
 
 
-    for (int i = 1; i < nPenguins; ++i) {
+    /*for (int i = 1; i < nPenguins; ++i) {
         // remove higlight of all boxes
         removeHighlightBox(penguins[i], map->mapWin);
-    }
+    }*/
 
     int selectedPengIndex = 1;
     if (nPenguins > 1) {
@@ -133,9 +133,9 @@ int turn(Player* player, Map* map) {
         do {
             printMessage("%s sélection pingouin (%d/%d)", player->name, selectedPengIndex, nPenguins);
             key = getch();
-            removeHighlightBox(selectedBox, map->mapWin);
-            selectedBox = penguinSelection(map, player->playerId, selectedBox, key);
             highlightBox(selectedBox, map->mapWin, player->playerId + 1);
+            selectedBox = penguinSelection(map, player->playerId, selectedBox, key);
+            highlightBox(selectedBox, map->mapWin, player->playerId + 7);
             for (int i = 0; i < nPenguins; ++i) {
                 if (penguins[i] == selectedBox) {
                     selectedPengIndex = i + 1;

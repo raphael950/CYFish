@@ -154,7 +154,7 @@ void highlightBox(Box* box, WINDOW* mapWin, int color) {
 }
 
 void removeHighlightBox(Box* box, WINDOW* mapWin) {
-    highlightBox(box, mapWin, 10);
+    highlightBox(box, mapWin, 13);
 }
 
 void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
@@ -164,7 +164,7 @@ void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
     int yOffset = y*3;
     int xOffset = x*8 + (y%2==0)*4;
     if (printBorder) {
-        wattron(mapWin, COLOR_PAIR(10));
+        wattron(mapWin, COLOR_PAIR(13));
         mvwaddch(mapWin, yOffset, xOffset + 3, '/');
         mvwaddch(mapWin, yOffset, xOffset + 5, '\\');
         mvwaddch(mapWin, yOffset + 1, xOffset + 1, '/');
@@ -176,7 +176,7 @@ void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
         mvwaddch(mapWin, yOffset + 3, xOffset + 7, '/');
         mvwaddch(mapWin, yOffset + 4, xOffset + 3, '\\');
         mvwaddch(mapWin, yOffset + 4, xOffset + 5, '/');
-        wattroff(mapWin, COLOR_PAIR(10));
+        wattroff(mapWin, COLOR_PAIR(13));
     }
 
     if (printFishes && box->fishes > 0) {
