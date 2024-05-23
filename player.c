@@ -168,6 +168,7 @@ int turn(Player* player, Map* map) {
     movePenguin(penguins[pengId], to, player, map);
 
     free(penguins);
+    free(possibleMoves);
     return 1;
 }
 
