@@ -120,7 +120,7 @@ Box* getRelativeBox(Map* map, Coord coord, Direction direction) {
         default:
             return NULL;
     }
-    return getBox(map, coord, 0);
+    return getBox(map, coord, 1);
 }
 
 int getAvailableSteps(Map* map, Coord coord, Direction direction) {

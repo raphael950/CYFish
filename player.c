@@ -117,22 +117,31 @@ int turn(Player* player, Map* map) {
 
     if (nPossibleMoves == 0) return 0;
 
-    int direction = 0;
-    highlightBox(possibleMoves[direction], map->mapWin, player->playerId + 7);
+    int contactBoxId = 0;
+    highlightBox(possibleMoves[contactBoxId], map->mapWin, player->playerId + 7);
     if (nPossibleMoves > 1) {
         int key;
         do {
-            printMessage("%s sélection direction (%d/%d)", player->name, direction+1, nPossibleMoves);
+            printMessage("%s sélection direction (%d/%d)", player->name, contactBoxId+1, nPossibleMoves);
             key = getch();
-            if ((key == KEY_LEFT || key == 68) && (direction - 1) >= 0) {
-                removeHighlightBox(possibleMoves[direction], map->mapWin);
-                direction--;
-            } else if ((key == KEY_RIGHT || key == 67) && (direction + 1) < nPossibleMoves) {
-                removeHighlightBox(possibleMoves[direction], map->mapWin);
-                direction++;
+            if ((key == KEY_LEFT || key == 68) && (contactBoxId - 1) >= 0) {
+                removeHighlightBox(possibleMoves[contactBoxId], map->mapWin);
+                contactBoxId--;
+            } else if ((key == KEY_RIGHT || key == 67) && (contactBoxId + 1) < nPossibleMoves) {
+                removeHighlightBox(possibleMoves[contactBoxId], map->mapWin);
+                contactBoxId++;
             } else continue;
-            highlightBox(possibleMoves[direction], map->mapWin, player->playerId + 7);
+            highlightBox(possibleMoves[contactBoxId], map->mapWin, player->playerId + 7);
         } while (key != KEY_ENTER && key != 10);
+    }
+
+    int direction = 0;
+    // set direction to the direction of the selected box
+    for (int i = 0; i < 6; i++) {
+        if (possibleMoves[contactBoxId] == getRelativeBox(map, penguins[pengId]->coord, i)) {
+            direction = i;
+            break;
+        }
     }
 
     // choice of steps
@@ -142,6 +151,7 @@ int turn(Player* player, Map* map) {
     if (maxSteps == 0) exit(1);
 
     int key;
+    Box* to = getDistancedRelativeBox(map, penguins[pengId]->coord, direction, steps);
     do {
         printMessage("%s déplacement de %d case sur %d", player->name, steps, maxSteps);
         key = getch();
@@ -149,9 +159,11 @@ int turn(Player* player, Map* map) {
             steps = key - 48;
         }
         if (steps > maxSteps) steps = maxSteps;
+        removeHighlightBox(to, map->mapWin);
+        to = getDistancedRelativeBox(map, penguins[pengId]->coord, direction, steps);
+        highlightBox(to, map->mapWin, player->playerId + 7);
     } while (key != KEY_ENTER && key != 10);
 
-    Box* to = getDistancedRelativeBox(map, penguins[pengId]->coord, direction, steps);
     if (to == NULL) exit(1);
     movePenguin(penguins[pengId], to, player, map);
 
