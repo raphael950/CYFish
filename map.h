@@ -17,7 +17,7 @@ typedef struct {
     int fishes;
     int* fishValues;
     int playerId; // -1 for no player
-    int isDead;
+    int isMelt;
 } Box;
 
 typedef struct {
@@ -45,7 +45,7 @@ void highlightBox(Box* box, WINDOW* mapWin, int color);
 Map* mapBuilder(int penguins, int width, int length);
 void showMap(Map* map);
 int isValidCoord(Map map, Coord coord);
-Box* getBox(Map* map, Coord coord);
+Box* getBox(Map* map, Coord coord, int ignoreMeltedBoxes);
 int isSpawnpoint(Box* box);
 Box* getBoxFromId(Map* map, int boxId);
 Box* getRelativeBox(Map* map, Coord coord, Direction direction);

@@ -40,9 +40,9 @@ Map* mapBuilder(int penguins, int width, int length) {
     for (int y = 0; y < width; ++y) {
         for (int x = 0; x < length; ++x) {
             Coord coord = coordBuilder(x, y);
-            Box* box = getBox(map, coord);
+            Box* box = getBox(map, coord, 1);
             if (box == NULL) continue;
-            box->isDead = 0;
+            box->isMelt = 0;
             box->coord = coord;
             box->playerId = -1;
             box->fishes = random(1, 3);
@@ -76,12 +76,15 @@ int isValidCoord(Map map, Coord coord) {
     return coord.x < map.length;
 }
 
-Box* getBox(Map* map, Coord coord) {
+Box* getBox(Map* map, Coord coord, int ignoreMeltedBoxes) {
     if (!isValidCoord(*map, coord)) return NULL;
     int i = coord.x;
     i += (coord.y / 2) * map->length;
     i += (coord.y - coord.y/2) * (map->length-1);
-    return map->boxes + i;
+    Box* box = map->boxes + i;
+    if (box == NULL) return NULL;
+    if (ignoreMeltedBoxes || !box->isMelt) return box;
+    return NULL;
 }
 
 Box* getBoxFromId(Map* map, int boxId) {
@@ -117,7 +120,7 @@ Box* getRelativeBox(Map* map, Coord coord, Direction direction) {
         default:
             return NULL;
     }
-    return getBox(map, coord);
+    return getBox(map, coord, 0);
 }
 
 int getAvailableSteps(Map* map, Coord coord, Direction direction) {
@@ -132,9 +135,9 @@ int getAvailableSteps(Map* map, Coord coord, Direction direction) {
 
 Box* getDistancedRelativeBox(Map* map, Coord coord, Direction direction, int distance) {
     if (distance < 0) return NULL;
-    if (distance == 0) return getBox(map, coord);
+    if (distance == 0) return getBox(map, coord, 1);
     Box* relative = getRelativeBox(map, coord, direction);
-    if (relative == NULL || relative->isDead || relative->playerId != -1) return NULL;
+    if (relative == NULL || relative->isMelt || relative->playerId != -1) return NULL;
     return getDistancedRelativeBox(map, relative->coord, direction, distance-1);
 }
 

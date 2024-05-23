@@ -2,7 +2,6 @@
 #include "map.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "movement.h"
 #include "window.h"
 
 WINDOW* getScoreWin() {
@@ -58,8 +57,8 @@ Box** getAlivePenguins(Map* map, int playerId, int* nAlivePenguins) {
     Box** boxes = malloc(sizeof(Box*)*map->nBoxes);
     int i = 0;
     for (Box* box = map->boxes; box < map->boxes + map->nBoxes; box++) {
-        if (isStuck(map, box)) box->isDead = 1;
-        if (box->playerId == playerId && !box->isDead) boxes[i++] = box;
+        if (isStuck(map, box)) box->isMelt = 1;
+        if (box->playerId == playerId && !box->isMelt) boxes[i++] = box;
     }
     *nAlivePenguins = i;
     return boxes;
@@ -70,7 +69,7 @@ Box* penguinSelection(Map* map, int playerId, Box* from, int key) {
 
     if (key == KEY_RIGHT || key == 67) {
         for (Box* box = from + 1; box < (map->boxes + map->nBoxes); box++) {
-            if (box->playerId == from->playerId && !box->isDead) {
+            if (box->playerId == from->playerId && !box->isMelt) {
                 return box;
             }
         }
@@ -81,7 +80,7 @@ Box* penguinSelection(Map* map, int playerId, Box* from, int key) {
     }
     if (key == KEY_LEFT || key == 68) {
         for (Box* box = from-1; box >= map->boxes; box--) {
-            if (box->playerId == from->playerId && !box->isDead) {
+            if (box->playerId == from->playerId && !box->isMelt) {
                 return box;
             }
         }
@@ -117,47 +116,31 @@ int turn(Player* player, Map* map) {
     Box** penguins = getAlivePenguins(map, player->playerId, &nPenguins);
     if (nPenguins == 0) return 0;
 
-    Box* selectedBox = penguins[0];
-    WINDOW* popUp = getMessageWindow();
     printMessage("C'est au tour de %s de jouer", player->name);
+    int pengId = 0;
+    highlightBox(penguins[pengId], map->mapWin, player->playerId + 7);
 
-
-    /*for (int i = 1; i < nPenguins; ++i) {
-        // remove higlight of all boxes
-        removeHighlightBox(penguins[i], map->mapWin);
-    }*/
-
-    int selectedPengIndex = 1;
     if (nPenguins > 1) {
         int key;
         do {
-            printMessage("%s sélection pingouin (%d/%d)", player->name, selectedPengIndex, nPenguins);
+            printMessage("%s sélection pingouin (%d/%d)", player->name, pengId+1, nPenguins);
             key = getch();
-            highlightBox(selectedBox, map->mapWin, player->playerId + 1);
-            selectedBox = penguinSelection(map, player->playerId, selectedBox, key);
-            highlightBox(selectedBox, map->mapWin, player->playerId + 7);
-            for (int i = 0; i < nPenguins; ++i) {
-                if (penguins[i] == selectedBox) {
-                    selectedPengIndex = i + 1;
-                    break;
-                }
+            highlightBox(penguins[pengId], map->mapWin, player->playerId + 1);
+            if ((key == KEY_LEFT || key == 67) && (pengId - 1) >= 0) {
+                pengId--;
+                highlightBox(penguins[pengId], map->mapWin, player->playerId + 1);
             }
+            else if ((key == KEY_RIGHT || key == 68) && (pengId + 1) < nPenguins) {
+                pengId++;
+                highlightBox(penguins[pengId], map->mapWin, player->playerId + 1);
+
+            } else continue;
+
+            highlightBox(penguins[pengId], map->mapWin, player->playerId + 7);
         } while (key != KEY_ENTER && key != 10);
     }
 
-    Direction direction;
-    int distance;
 
-    Box* destination;
-    do {
-        printMessage("%s entrez la direction de 1 pour le Nord-Est à 6 pour le Nord-Ouest: ");
-        direction = (getch() - 1);
-        printMessage("%s entrez le nombre de pas");
-        distance = getch();
-        destination = getDistancedRelativeBox(map, selectedBox->coord, direction, distance);
-    } while (destination == NULL || destination->playerId != -1);
-
-    movePenguin(selectedBox, destination, player, map);
     free(penguins);
     return 1;
 }

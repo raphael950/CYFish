@@ -1,6 +1,5 @@
 #include <ncurses.h>
 #include "penguin.h"
-#include "movement.h"
 #include <stdlib.h>
 #include "window.h"
 
@@ -23,14 +22,14 @@ void placeOnePenguin(Map* map, Player* player) {
     WINDOW* popUp = getMessageWindow();
     printMessage("C'est au tour de %s de séléctionner l'emplacement de son pingouin", player->name);
     Coord coord = coordBuilder(0, 0);
-    Box* box = getBox(map, coord);
+    Box* box = getBox(map, coord, 1);
     highlightBox(box, mapWin, player->playerId + 1);
     int key;
     do {
         key = getch();
         if (!boxSelection(key, map, &coord)) continue;
 
-        Box* newBox = getBox(map, coord);
+        Box* newBox = getBox(map, coord, 1);
         if (newBox == NULL) {
             coord = box->coord;
             continue;
