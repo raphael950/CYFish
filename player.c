@@ -139,7 +139,7 @@ int turn(Player* player, Map* map) {
     int steps = 1;
     int maxSteps = getAvailableSteps(map, penguins[pengId]->coord, direction);
 
-    if (maxSteps == 0) return 0; // TODO: traiter le probleme dans ce cas meme si il arrive pas
+    if (maxSteps == 0) exit(1);
 
     int key;
     do {
@@ -148,9 +148,11 @@ int turn(Player* player, Map* map) {
         if (key >= 48 && key <= 57) {
             steps = key - 48;
         }
+        if (steps > maxSteps) steps = maxSteps;
     } while (key != KEY_ENTER && key != 10);
 
     Box* to = getDistancedRelativeBox(map, penguins[pengId]->coord, direction, steps);
+    if (to == NULL) exit(1);
     movePenguin(penguins[pengId], to, player, map);
 
     free(penguins);
