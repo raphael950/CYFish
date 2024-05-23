@@ -19,7 +19,7 @@ int nbPenguin(int nbPlayer) {
 void placeOnePenguin(Map* map, Player* player) {
 
     WINDOW* mapWin = map->mapWin;
-    WINDOW* popUp = getMessageWindow();
+
     printMessage("C'est au tour de %s de séléctionner l'emplacement de son pingouin", player->name);
     Coord coord = coordBuilder(0, 0);
     Box* box = getBox(map, coord, 1);
@@ -38,11 +38,7 @@ void placeOnePenguin(Map* map, Player* player) {
         box = newBox;
         highlightBox(box, mapWin, player->playerId + 1);
         if ((key == KEY_ENTER || key == 10) && !isSpawnpoint(box)) {
-            // clear window withouth clearing the border
-            wclear(popUp);
-            box(popUp, 0, 0);
-            mvwprintw(popUp, 1, 1, "%s prenez une autre case, celle-ci n'est pas valide", player->name);
-            wrefresh(popUp);
+            printMessage("%s prenez une autre case, celle-ci n'est pas valide", player->name);
         }
     } while ((key != KEY_ENTER && key != 10) || !isSpawnpoint(box));
     //removeHighlightBox(box, mapWin);

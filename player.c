@@ -37,7 +37,7 @@ Player playerBuilder(int playerId) {
 int isStuck(Map* map, Box* box) {
     for (int i = 0; i < 6; i++) {
         Box* relativeBox = getRelativeBox(map, box->coord, i);
-        if (relativeBox != NULL && relativeBox->playerId == -1) {
+        if (relativeBox != NULL && relativeBox->playerId == -1 && !relativeBox->isMelt) {
             return 0;
         }
     }
@@ -57,8 +57,7 @@ Box** getPlayablePenguins(Map* map, int playerId, int* nAlivePenguins) {
     Box** boxes = malloc(sizeof(Box*)*map->nBoxes);
     int i = 0;
     for (Box* box = map->boxes; box < map->boxes + map->nBoxes; box++) {
-        if (isStuck(map, box)) box->isMelt = 1;
-        if (box->playerId == playerId && !box->isMelt) boxes[i++] = box;
+        if (box->playerId == playerId && !box->isMelt && !isStuck(map, box)) boxes[i++] = box;
     }
     *nAlivePenguins = i;
     return boxes;
