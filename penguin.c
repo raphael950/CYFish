@@ -1,6 +1,5 @@
 #include <ncurses.h>
 #include "penguin.h"
-#include <stdlib.h>
 #include "window.h"
 
 int nbPenguin(int nbPlayer) {

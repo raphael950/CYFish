@@ -34,14 +34,24 @@ Player playerBuilder(int playerId) {
     return player;
 }
 
-int isStuck(Map* map, Box* box) {
-    for (int i = 0; i < 6; i++) {
-        Box* relativeBox = getRelativeBox(map, box->coord, i);
-        if (relativeBox != NULL && relativeBox->playerId == -1 && !relativeBox->isMelt) {
-            return 0;
-        }
+Box** getContactBoxes(Map* map, Coord coord, int freeOnly, int* nBoxes) {
+    Box** boxes = malloc(sizeof(Box*)*6);
+    int i = 0;
+    for (int j = 0; j < 6; j++) {
+        Box* box = getRelativeBox(map, coord, j);
+        if (box != NULL && !box->isMelt && (!freeOnly || box->playerId ==-1)) boxes[i++] = box;
     }
-    return 1;
+    *nBoxes = i;
+    return boxes;
+}
+
+int isStuck(Map* map, Box* box) {
+    int nBoxes;
+    Box** boxes = getContactBoxes(map, box->coord, 1, &nBoxes);
+    free(boxes);
+
+    if (nBoxes == 0) return 1;
+    return 0;
 }
 
 int canPlay(Player* player, Map* map) {
@@ -89,10 +99,10 @@ int turn(Player* player, Map* map) {
 
     printMessage("C'est au tour de %s de jouer", player->name);
     int pengId = 0;
-    highlightBox(penguins[pengId], map->mapWin, player->playerId + 7);
 
     if (nPenguins > 1) {
         int key;
+        highlightBox(penguins[pengId], map->mapWin, player->playerId + 7);
         do {
             printMessage("%s sélection pingouin (%d/%d)", player->name, pengId+1, nPenguins);
             key = getch();
@@ -105,22 +115,36 @@ int turn(Player* player, Map* map) {
             } else continue;
             highlightBox(penguins[pengId], map->mapWin, player->playerId + 7);
         } while (key != KEY_ENTER && key != 10);
+        highlightBox(penguins[pengId], map->mapWin, player->playerId + 1);
     }
 
-    Box** possibleMoves = malloc(sizeof(Box*)*6);
     int nPossibleMoves = 0;
+    Box** possibleMoves = getContactBoxes(map, penguins[pengId]->coord, 1, &nPossibleMoves);
 
-    for (int i = 0; i < 6; i++) {
-        Box* relativeBox = getRelativeBox(map, penguins[pengId]->coord, i);
-        if (relativeBox != NULL && relativeBox->playerId == -1 && !relativeBox->isMelt) {
-            possibleMoves[nPossibleMoves++] = relativeBox;
-        }
+    if (nPossibleMoves == 0) return 0;
+
+    int direction = 0;
+    highlightBox(possibleMoves[direction], map->mapWin, player->playerId + 7);
+    if (nPossibleMoves > 1) {
+        int key;
+        do {
+            printMessage("%s sélection direction (%d/%d)", player->name, direction+1, nPossibleMoves);
+            key = getch();
+            if ((key == KEY_LEFT || key == 68) && (direction - 1) >= 0) {
+                removeHighlightBox(possibleMoves[direction], map->mapWin);
+                direction--;
+            } else if ((key == KEY_RIGHT || key == 67) && (direction + 1) < nPossibleMoves) {
+                removeHighlightBox(possibleMoves[direction], map->mapWin);
+                direction++;
+            } else continue;
+            highlightBox(possibleMoves[direction], map->mapWin, player->playerId + 7);
+        } while (key != KEY_ENTER && key != 10);
     }
 
-    if (nPossibleMoves == 0) {
-        printMessage("Aucun mouvement possible pour %s", player->name);
-        return 0;
-    }
+
+
+int moveId = 0;
+
 
 
 

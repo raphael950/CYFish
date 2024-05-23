@@ -103,19 +103,19 @@ Box* getRelativeBox(Map* map, Coord coord, Direction direction) {
             break;
         case NORTHWEST:
             if (!isColumnEven) coord.x--;
-            coord.y++;
+            coord.y--;
             break;
         case NORTHEAST:
             if (isColumnEven) coord.x++;
-            coord.y++;
+            coord.y--;
             break;
         case SOUTHWEST:
             if (!isColumnEven) coord.x--;
-            coord.y--;
+            coord.y++;
             break;
         case SOUTHEAST:
             if (isColumnEven) coord.x++;
-            coord.y--;
+            coord.y++;
             break;
         default:
             return NULL;

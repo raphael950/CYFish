@@ -30,11 +30,11 @@ typedef struct {
 
 typedef enum {
     NORTHEAST,
-    NORTHWEST,
+    EAST,
     SOUTHEAST,
     SOUTHWEST,
-    EAST,
-    WEST
+    WEST,
+    NORTHWEST
 } Direction;
 
 Coord coordBuilder(int x, int y);
