@@ -125,20 +125,32 @@ int turn(Player* player, Map* map) {
         do {
             printMessage("%s sélection pingouin (%d/%d)", player->name, pengId+1, nPenguins);
             key = getch();
-            highlightBox(penguins[pengId], map->mapWin, player->playerId + 1);
-            if ((key == KEY_LEFT || key == 67) && (pengId - 1) >= 0) {
+            if ((key == KEY_LEFT || key == 68) && (pengId - 1) >= 0) {
+                highlightBox(penguins[pengId], map->mapWin, player->playerId + 1);
                 pengId--;
+            } else if ((key == KEY_RIGHT || key == 67) && (pengId + 1) < nPenguins) {
                 highlightBox(penguins[pengId], map->mapWin, player->playerId + 1);
-            }
-            else if ((key == KEY_RIGHT || key == 68) && (pengId + 1) < nPenguins) {
                 pengId++;
-                highlightBox(penguins[pengId], map->mapWin, player->playerId + 1);
-
             } else continue;
-
             highlightBox(penguins[pengId], map->mapWin, player->playerId + 7);
         } while (key != KEY_ENTER && key != 10);
     }
+
+    Box** possibleMoves = malloc(sizeof(Box*)*6);
+    int nPossibleMoves = 0;
+
+    for (int i = 0; i < 6; i++) {
+        Box* relativeBox = getRelativeBox(map, penguins[pengId]->coord, i);
+        if (relativeBox != NULL && relativeBox->playerId == -1 && !relativeBox->isMelt) {
+            possibleMoves[nPossibleMoves++] = relativeBox;
+        }
+    }
+
+    if (nPossibleMoves == 0) {
+        printMessage("Aucun mouvement possible pour %s", player->name);
+        return 0;
+    }
+
 
 
     free(penguins);
