@@ -54,15 +54,6 @@ int isStuck(Map* map, Box* box) {
     return 0;
 }
 
-int canPlay(Player* player, Map* map) {
-    // foreach hexa where player is, check if a movement is possible
-    for (Box* box = map->boxes; box < map->boxes + map->nBoxes; box++) {
-        if (box-> playerId == player->playerId && !isStuck(map, box))
-            return 1;
-    }
-    return 0;
-}
-
 Box** getPlayablePenguins(Map* map, int playerId, int* nAlivePenguins) {
     Box** boxes = malloc(sizeof(Box*)*map->nBoxes);
     int i = 0;
@@ -88,7 +79,10 @@ void movePenguin(Box* from, Box* to, Player* player, Map* map) {
 
     to->playerId = player->playerId;
     from->playerId = -1;
-    printBox(from, map->mapWin, 0, 0);
+    from->fishes = 0;
+    from->isMelt = 1;
+    free(from->fishValues);
+    printBox(from, map->mapWin, 0, 1);
     printBox(to, map->mapWin, 0, 0);
 }
 
@@ -141,12 +135,23 @@ int turn(Player* player, Map* map) {
         } while (key != KEY_ENTER && key != 10);
     }
 
+    // choice of steps
+    int steps = 1;
+    int maxSteps = getAvailableSteps(map, penguins[pengId]->coord, direction);
 
+    if (maxSteps == 0) return 0; // TODO: traiter le probleme dans ce cas meme si il arrive pas
 
-int moveId = 0;
+    int key;
+    do {
+        printMessage("%s déplacement de %d case sur %d", player->name, steps, maxSteps);
+        key = getch();
+        if (key >= 48 && key <= 57) {
+            steps = key - 48;
+        }
+    } while (key != KEY_ENTER && key != 10);
 
-
-
+    Box* to = getDistancedRelativeBox(map, penguins[pengId]->coord, direction, steps);
+    movePenguin(penguins[pengId], to, player, map);
 
     free(penguins);
     return 1;

@@ -126,9 +126,9 @@ Box* getRelativeBox(Map* map, Coord coord, Direction direction) {
 int getAvailableSteps(Map* map, Coord coord, Direction direction) {
     int steps = 0;
     Box* relative = getRelativeBox(map, coord, direction);
-    while (relative != NULL) {
+    while (relative != NULL && !relative->isMelt && relative->playerId == -1) {
         steps++;
-        relative = getRelativeBox(map, coord, direction);
+        relative = getRelativeBox(map, relative->coord, direction);
     }
     return steps;
 }
@@ -188,8 +188,8 @@ void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
             int yFish = i;
             int xFish;
             if (yFish == 1) {
-                xFish = rand() % 3 + 1;
-                if (xFish == 3) xFish = 6;
+                xFish = rand() % 2 + 1;
+                if (xFish == 2) xFish = 6;
             } else {
                 xFish = rand() % 4 + 2;
             }
@@ -198,11 +198,17 @@ void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
             } else mvwprintw(mapWin, yOffset + yFish + 1, xOffset + xFish, "\U0001f41f");
         }
     }
+    if (printFishes && box->fishes == 0) {
+        // fill blank fishes
+        mvwprintw(mapWin, yOffset + 1, xOffset + 2, "     ");
+        mvwprintw(mapWin, yOffset + 2, xOffset + 1, "       ");
+        mvwprintw(mapWin, yOffset + 3, xOffset + 2, "     ");
+    }
     if (box->playerId >= 0) {
         mvwprintw(mapWin, yOffset + 2, xOffset + 3, "\U0001f427");
         highlightBox(box, mapWin, box->playerId + 1);
     } else {
-        //mvwprintw(mapWin, yOffset + 2, xOffset + 3, "\U0001f969");
+        mvwprintw(mapWin, yOffset + 2, xOffset + 3, " ");
         removeHighlightBox(box, mapWin);
     }
     wrefresh(mapWin);
