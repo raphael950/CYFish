@@ -53,7 +53,7 @@ int canPlay(Player* player, Map* map) {
     return 0;
 }
 
-Box** getAlivePenguins(Map* map, int playerId, int* nAlivePenguins) {
+Box** getPlayablePenguins(Map* map, int playerId, int* nAlivePenguins) {
     Box** boxes = malloc(sizeof(Box*)*map->nBoxes);
     int i = 0;
     for (Box* box = map->boxes; box < map->boxes + map->nBoxes; box++) {
@@ -62,34 +62,6 @@ Box** getAlivePenguins(Map* map, int playerId, int* nAlivePenguins) {
     }
     *nAlivePenguins = i;
     return boxes;
-}
-
-Box* penguinSelection(Map* map, int playerId, Box* from, int key) {
-    if (map == NULL || from == NULL) return NULL;
-
-    if (key == KEY_RIGHT || key == 67) {
-        for (Box* box = from + 1; box < (map->boxes + map->nBoxes); box++) {
-            if (box->playerId == from->playerId && !box->isMelt) {
-                return box;
-            }
-        }
-        // return first box of player from the begining
-        //if (from == (map->boxes - 1)) return NULL; // no box found
-        //return penguinSelection(map, playerId, map->boxes - 1, key);
-
-    }
-    if (key == KEY_LEFT || key == 68) {
-        for (Box* box = from-1; box >= map->boxes; box--) {
-            if (box->playerId == from->playerId && !box->isMelt) {
-                return box;
-            }
-        }
-        // return last box of player from the end
-        //if (from == (map->nBoxes + map->boxes)) return NULL; // no box found
-        //return penguinSelection(map, playerId, map->boxes + map->nBoxes, key);
-    }
-    // bad key
-    return from;
 }
 
 void movePenguin(Box* from, Box* to, Player* player, Map* map) {
@@ -113,7 +85,7 @@ void movePenguin(Box* from, Box* to, Player* player, Map* map) {
 
 int turn(Player* player, Map* map) {
     int nPenguins;
-    Box** penguins = getAlivePenguins(map, player->playerId, &nPenguins);
+    Box** penguins = getPlayablePenguins(map, player->playerId, &nPenguins);
     if (nPenguins == 0) return 0;
 
     printMessage("C'est au tour de %s de jouer", player->name);

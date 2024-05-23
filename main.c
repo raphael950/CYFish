@@ -78,27 +78,13 @@ int main() {
     }
 
     int played = 0;
-    while(1) {
-        // for each players
+    do {
         for (Player* p = players; p < players + nbPlayers; p++) {
             int res = turn(p, map);
             if (res == 0) continue;
             played++;
-            mvwprintw(popUp, 1, 1, "C'est au tour de %s de jouer", p->name);
-            wrefresh(popUp);
-            int key;
-            do {
-                key = getch();
-                if (key == KEY_RIGHT || key == KEY_LEFT || key == KEY_UP || key == KEY_DOWN || key == 67 || key == 68 || key == 65 || key == 66) {
-                    Box* from = penguinSelection(map, p->playerId, map->boxes, key);
-                    if (from == NULL) continue;
-                    Box* to = getRelativeBox(map, from->coord, key);
-                    movePenguin(from, to, p, map);
-                }
-            } while (key != KEY_ENTER && key != 10);
         }
-        if (played == 0) break; // game finished
-    }//
+    } while(played != 0);
 
     wrefresh(popUp);
     wrefresh(map->mapWin);
