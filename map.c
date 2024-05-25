@@ -198,18 +198,19 @@ void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
             } else mvwprintw(mapWin, yOffset + yFish + 1, xOffset + xFish, "\U0001f41f");
         }
     }
-    if (printFishes && box->fishes == 0) {
-        // fill blank fishes
-        mvwprintw(mapWin, yOffset + 1, xOffset + 2, "     ");
-        mvwprintw(mapWin, yOffset + 2, xOffset + 1, "       ");
-        mvwprintw(mapWin, yOffset + 3, xOffset + 2, "     ");
-    }
     if (box->playerId >= 0) {
         mvwprintw(mapWin, yOffset + 2, xOffset + 3, "\U0001f427");
         highlightBox(box, mapWin, box->playerId + 1);
     } else {
         mvwprintw(mapWin, yOffset + 2, xOffset + 3, " ");
         removeHighlightBox(box, mapWin);
+    }
+    if (printFishes && box->fishes == 0) {
+        // fill blank fishes
+        mvwprintw(mapWin, yOffset + 1, xOffset + 2, "     ");
+        mvwprintw(mapWin, yOffset + 2, xOffset + 1, "       ");
+        mvwprintw(mapWin, yOffset + 3, xOffset + 2, "     ");
+        highlightBox(box, mapWin, 13);
     }
     wrefresh(mapWin);
 }
