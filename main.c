@@ -90,7 +90,7 @@ int main() {
     init_pair(11, COLOR_WHITE, 11);
     init_pair(12, COLOR_WHITE, 12);
     init_pair(13, COLOR_BLACK, 13);
-    init_pair(14, COLOR_BLACK, COLOR_BLACK);
+    init_pair(14, -1, -1);
 
 
     refresh();
