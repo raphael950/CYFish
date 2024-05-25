@@ -13,6 +13,7 @@
 void printCentered(int row, const char *text) {
     int x = 0, width = 0;
     getmaxyx(stdscr, width, x);  // Get the size of the window
+    row += (width-7)/2;
     mvprintw(row, (x - strlen(text)) / 2, "%s", text);  // Print text centered
 }
 
@@ -37,7 +38,7 @@ int main() {
     const char *line8 = "                                                  ";
     const char *line9 = "Press any key to start...";
 
-    int start_row = 3;
+    int start_row = 0;
 
     clear();  // Clear screen
     printCentered(start_row++, line1);
@@ -51,6 +52,8 @@ int main() {
     printCentered(start_row++, line9);
     refresh();
     getch();
+    clear();
+    refresh();
 
     Player* players = askPlayers(&nbPlayers);
     int penguins = nbPenguin(nbPlayers);
