@@ -68,14 +68,14 @@ int main() {
     init_color(5, 1000, 1000, 600); // Jaune
     init_color(6, 600, 1000, 1000); // Cyan
 
-    init_color(7, 500, 700, 900); // Bleu Foncé
-    init_color(8, 500, 900, 500); // Vert Foncé
-    init_color(9, 900, 500, 500); // Rouge Foncé
-    init_color(10, 500, 500, 900); // Violet Foncé
-    init_color(11, 900, 900, 500); // Jaune Foncé
-    init_color(12, 500, 900, 900); // Cyan Foncé
+    init_color(7, 400, 600, 800); // Bleu Foncé
+    init_color(8, 400, 800, 400); // Vert Foncé
+    init_color(9, 800, 400, 400); // Rouge Foncé
+    init_color(10, 400, 400, 800); // Violet Foncé
+    init_color(11, 800, 800, 400); // Jaune Foncé
+    init_color(12, 400, 800, 800); // Cyan Foncé
 
-    init_color(13, 900, 900, 900); // Blanc
+    init_color(13, 800, 800, 800); // Blanc
 
     init_pair(1, COLOR_WHITE, 1);
     init_pair(2, COLOR_WHITE, 2);
