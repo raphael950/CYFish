@@ -63,6 +63,19 @@ Box** getPlayablePenguins(Map* map, int playerId, int* nAlivePenguins) {
     *nAlivePenguins = i;
     return boxes;
 }
+void updateScore(Player* player, Map* map) {
+    static WINDOW* scoreWin = NULL;
+    if (scoreWin == NULL) {
+        WINDOW* mapWin = map->mapWin;
+        int x, y;
+        getmaxyx(mapWin, y, x);
+        scoreWin = newwin(y, 20, 0, x);
+    }
+    wattron(scoreWin, COLOR_PAIR(player->playerId + 1));
+    mvwprintw(scoreWin, player->playerId, 0, "%s: %d", player->name, player->score);
+    wattroff(scoreWin, COLOR_PAIR(player->playerId + 1));
+    wrefresh(scoreWin);
+}
 
 void movePenguin(Box* from, Box* to, Player* player, Map* map) {
     if (from == NULL || to == NULL) return;
@@ -84,6 +97,7 @@ void movePenguin(Box* from, Box* to, Player* player, Map* map) {
     free(from->fishValues);
     printBox(from, map->mapWin, 0, 1);
     printBox(to, map->mapWin, 0, 0);
+    updateScore(player, map);
 }
 
 int turn(Player* player, Map* map) {
@@ -172,6 +186,3 @@ int turn(Player* player, Map* map) {
     return 1;
 }
 
-void showScores(Player* players, int nbPlayers, WINDOW* scoreWin) {
-
-}

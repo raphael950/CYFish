@@ -7,23 +7,55 @@
 #include <ncurses.h>
 #include <locale.h>
 #include "window.h"
+#include <string.h>
 
 
-
+void printCentered(int row, const char *text) {
+    int x = 0, width = 0;
+    getmaxyx(stdscr, width, x);  // Get the size of the window
+    mvprintw(row, (x - strlen(text)) / 2, "%s", text);  // Print text centered
+}
 
 int main() {
     setlocale(LC_ALL, "");
     srand(time(NULL));
     int nbPlayers = 0;
-    Player* players = askPlayers(&nbPlayers);
-    int penguins = nbPenguin(nbPlayers);
-    printf("Penguins: %d\n", penguins);
 
     initscr();
     curs_set(0);
     noecho();
     start_color();
     use_default_colors();
+
+    const char *line1 = "  _______ ___ ___     _______ ___ _______ ___ ___ ";
+    const char *line2 = " |   _   |   Y   |   |   _   |   |   _   |   Y   |";
+    const char *line3 = " |.  1___|   1   |   |.  1___|.  |   1___|.  1   |";
+    const char *line4 = " |.  |___ \\_   _/    |.  __) |.  |____   |.  _   |";
+    const char *line5 = " |:  1   | |:  |     |:  |   |:  |:  1   |:  |   |";
+    const char *line6 = " |::.. . | |::.|     |::.|   |::.|::.. . |::.|:. |";
+    const char *line7 = " `-------' `---'     `---'   `---`-------`--- ---'";
+    const char *line8 = "                                                  ";
+    const char *line9 = "Press any key to start...";
+
+    int start_row = 3;
+
+    clear();  // Clear screen
+    printCentered(start_row++, line1);
+    printCentered(start_row++, line2);
+    printCentered(start_row++, line3);
+    printCentered(start_row++, line4);
+    printCentered(start_row++, line5);
+    printCentered(start_row++, line6);
+    printCentered(start_row++, line7);
+    printCentered(start_row++, line8);
+    printCentered(start_row++, line9);
+    refresh();
+    getch();
+
+    Player* players = askPlayers(&nbPlayers);
+    int penguins = nbPenguin(nbPlayers);
+    printf("Penguins: %d\n", penguins);
+    printCentered(0, "Penguins: ");
 
 
     Map* map = mapBuilder(penguins*nbPlayers, 9, 9);
@@ -62,6 +94,8 @@ int main() {
     WINDOW* popUp = getMessageWindow();
 
     refresh();
+
+
     box(popUp, 0, 0);
     wrefresh(popUp);
 
