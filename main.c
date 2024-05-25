@@ -3,10 +3,8 @@
 #include "penguin.h"
 #include <stdlib.h>
 #include <time.h>
-#include <stdio.h>
 #include <ncurses.h>
 #include <locale.h>
-#include "window.h"
 #include <string.h>
 
 
@@ -57,7 +55,6 @@ int main() {
 
     Player* players = askPlayers(&nbPlayers);
     int penguins = nbPenguin(nbPlayers);
-    printf("Penguins: %d\n", penguins);
     printCentered(0, "Penguins: ");
 
 
@@ -94,13 +91,8 @@ int main() {
     init_pair(12, COLOR_WHITE, 12);
     init_pair(13, COLOR_BLACK, 13);
 
-    WINDOW* popUp = getMessageWindow();
 
     refresh();
-
-
-    box(popUp, 0, 0);
-    wrefresh(popUp);
 
     for (int i = 0; i < map->nBoxes; ++i) {
         printBox(map->boxes + i, map->mapWin, 1, 1);
@@ -114,25 +106,36 @@ int main() {
             }
     }
 
-    int played = 0;
+    int played;
     do {
+        played = 0;
         for (Player* p = players; p < players + nbPlayers; p++) {
-            int res = turn(p, map);
-            if (res == 0) continue;
-            played++;
+            if (turn(p, map)) played++;
         }
     } while(played != 0);
 
-    wrefresh(popUp);
-    wrefresh(map->mapWin);
+    // print end game and scores
+    clear();
+    printCentered(0, "Fin de la partie");
+    // winner:
+
+    int maxScore = 0;
+    Player* winner = NULL;
+    for (Player* p = players; p < players + nbPlayers; p++) {
+        if (p->score > maxScore) {
+            maxScore = p->score;
+            winner = p;
+        }
+    }
+    printCentered(1, "Le gagnant est:");
+    printCentered(2, winner->name);
+
+    refresh();
+
+
     getch();
     endwin();
 
-
-    for (int i = 0; i < map->nBoxes; i++) {
-        free(map->boxes[i].fishValues);
-        free(map->boxes + i);
-    }
     free(map);
     free(players);
 }

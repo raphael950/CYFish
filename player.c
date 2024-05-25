@@ -49,7 +49,6 @@ int isStuck(Map* map, Box* box) {
     int nBoxes;
     Box** boxes = getContactBoxes(map, box->coord, 1, &nBoxes);
     free(boxes);
-
     if (nBoxes == 0) return 1;
     return 0;
 }
