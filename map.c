@@ -160,6 +160,51 @@ void removeHighlightBox(Box* box, WINDOW* mapWin) {
     highlightBox(box, mapWin, 13);
 }
 
+void meltBox(Box* box, Map* map) {
+    if (box == NULL) return;
+    box->isMelt = 1;
+    box->playerId = -1;
+    box->fishes = 0;
+    free(box->fishValues);
+    int x = box->coord.x, y = box->coord.y;
+    x = x*8 + (y%2==0)*4;
+    y = y*3;
+
+    mvwprintw(map->mapWin, y + 1, x + 2, "     ");
+    mvwprintw(map->mapWin, y + 2, x + 1, "       ");
+    mvwprintw(map->mapWin, y + 3, x + 2, "     ");
+    highlightBox(box, map->mapWin, 14);
+    Box* northEast = getRelativeBox(map, box->coord, NORTHEAST);
+    if (northEast == NULL || northEast->isMelt) {
+        mvwchgat(map->mapWin, y, x + 5, 1, A_NORMAL, 14, NULL);
+        mvwchgat(map->mapWin, y + 1, x + 7, 1, A_NORMAL, 14, NULL);
+    }
+    Box* southEast = getRelativeBox(map, box->coord, SOUTHEAST);
+    if (southEast == NULL || southEast->isMelt) {
+        mvwchgat(map->mapWin, y + 4, x + 5, 1, A_NORMAL, 14, NULL);
+        mvwchgat(map->mapWin, y + 3, x + 7, 1, A_NORMAL, 14, NULL);
+    }
+    Box* southWest = getRelativeBox(map, box->coord, SOUTHWEST);
+    if (southWest == NULL || southWest->isMelt) {
+        mvwchgat(map->mapWin, y + 4, x + 3, 1, A_NORMAL, 14, NULL);
+        mvwchgat(map->mapWin, y + 3, x + 1, 1, A_NORMAL, 14, NULL);
+    }
+    Box* northWest = getRelativeBox(map, box->coord, NORTHWEST);
+    if (northWest == NULL || northWest->isMelt) {
+        mvwchgat(map->mapWin, y, x + 3, 1, A_NORMAL, 14, NULL);
+        mvwchgat(map->mapWin, y + 1, x + 1, 1, A_NORMAL, 14, NULL);
+    }
+    Box* east = getRelativeBox(map, box->coord, EAST);
+    if (east == NULL || east->isMelt) {
+        mvwchgat(map->mapWin, y + 2, x + 8, 1, A_NORMAL, 14, NULL);
+    }
+    Box* west = getRelativeBox(map, box->coord, WEST);
+    if (west == NULL || west->isMelt) {
+        mvwchgat(map->mapWin, y + 2, x, 1, A_NORMAL, 14, NULL);
+    }
+
+}
+
 void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
     // TODO: higlight if player on it
     if (box == NULL) return;
@@ -199,18 +244,13 @@ void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
         }
     }
     if (box->playerId >= 0) {
+        // Print penguin and highlight box
         mvwprintw(mapWin, yOffset + 2, xOffset + 3, "\U0001f427");
         highlightBox(box, mapWin, box->playerId + 1);
     } else {
+        // remove penguin and highlight
         mvwprintw(mapWin, yOffset + 2, xOffset + 3, " ");
         removeHighlightBox(box, mapWin);
-    }
-    if (printFishes && box->fishes == 0) {
-        // fill blank fishes
-        mvwprintw(mapWin, yOffset + 1, xOffset + 2, "     ");
-        mvwprintw(mapWin, yOffset + 2, xOffset + 1, "       ");
-        mvwprintw(mapWin, yOffset + 3, xOffset + 2, "     ");
-        highlightBox(box, mapWin, 14);
     }
     wrefresh(mapWin);
 }

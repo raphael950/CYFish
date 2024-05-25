@@ -38,6 +38,7 @@ typedef enum {
 } Direction;
 
 Coord coordBuilder(int x, int y);
+void meltBox(Box* box, Map* map);
 int boxSelection(int key, Map* map, Coord* coord);
 void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes);
 void removeHighlightBox(Box* box, WINDOW* mapWin);

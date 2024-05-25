@@ -81,22 +81,18 @@ void movePenguin(Box* from, Box* to, Player* player, Map* map) {
     if (from->playerId != player->playerId) return;
     if (to->playerId != -1) return;
 
+    // Update score
     int score = 0;
     for (int i = 0; i < from->fishes; ++i) {
         score += from->fishValues[i];
     }
     player->score += score;
-    // TODO:
-    // - Check if the player is stuck
-
-    to->playerId = player->playerId;
-    from->playerId = -1;
-    from->fishes = 0;
-    from->isMelt = 1;
-    free(from->fishValues);
-    printBox(from, map->mapWin, 0, 1);
-    printBox(to, map->mapWin, 0, 0);
     updateScore(player, map);
+
+    // Move penguin
+    to->playerId = player->playerId;
+    meltBox(from, map);
+    printBox(to, map->mapWin, 0, 0);
 }
 
 int turn(Player* player, Map* map) {
