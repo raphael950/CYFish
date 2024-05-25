@@ -210,7 +210,7 @@ void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
         mvwprintw(mapWin, yOffset + 1, xOffset + 2, "     ");
         mvwprintw(mapWin, yOffset + 2, xOffset + 1, "       ");
         mvwprintw(mapWin, yOffset + 3, xOffset + 2, "     ");
-        highlightBox(box, mapWin, 13);
+        highlightBox(box, mapWin, 14);
     }
     wrefresh(mapWin);
 }
