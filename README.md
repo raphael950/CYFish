@@ -1,3 +1,25 @@
+## Utilisation:
+
+1) Ouvrir le terminal linux en plein écran
+2) Effectuer la commande **git clone https://github.com/Twiz0x/CYFish.git** (il faut git)
+3) Effectuer la commande **cd CYFish**
+4) Lancer le Makefile avec la commande **make**
+5) Executer le programme avec la commande **./exec**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Consignes CY FISH:
 - taille de la map fixée (ligne + colonnes) minimum 9 colonnes et 9 lignes (81 hexagones)
 - demander nb de joueurs entre 2 et 6:
@@ -29,5 +51,4 @@ deplacement:
 > déplacement validé -> tp le pingouin, suppr ancienne case et ajouter poissons ancienne case
 
 fin de jeu -> plus aucun joueur ne peut bouger
-afficher gagnant et scores
-menu pour recommencer la partie ou quitter en fonction du choix de l'utilisateur
+afficher gagnant
