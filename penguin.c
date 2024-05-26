@@ -5,7 +5,7 @@
 int nbPenguin(int nbPlayer) {
     switch (nbPlayer) {
         case 2:
-            return 2;
+            return 4;
         case 3:
             return 3;
         case 4:
