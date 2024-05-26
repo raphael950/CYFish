@@ -70,7 +70,7 @@ void updateScore(Player* player, Map* map) {
         WINDOW* mapWin = map->mapWin;
         int x, y;
         getmaxyx(mapWin, y, x);
-        scoreWin = newwin(y, 20, 0, x);
+        scoreWin = newwin(y, 50, 0, x);
         box(scoreWin, 0, 0);
     }
     wattron(scoreWin, COLOR_PAIR(player->playerId + 1));
