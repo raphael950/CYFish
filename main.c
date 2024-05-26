@@ -21,9 +21,9 @@ int main() {
     int nbPlayers = 0;
 
     initscr();
-    curs_set(0);
-    noecho();
     start_color();
+
+    curs_set(0);
     use_default_colors();
 
     const char *line1 = "  _______ ___ ___     _______ ___ _______ ___ ___ ";
@@ -55,7 +55,7 @@ int main() {
 
     Player* players = askPlayers(&nbPlayers);
     int penguins = nbPenguin(nbPlayers);
-    printCentered(0, "Penguins: ");
+    noecho();
 
 
     Map* map = mapBuilder(penguins*nbPlayers, 9, 9);

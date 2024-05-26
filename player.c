@@ -14,8 +14,9 @@ WINDOW* getScoreWin() {
 
 Player* askPlayers(int* nbPlayers) {
     while (nbPlayers == NULL || *nbPlayers < 2 || *nbPlayers > 6) {
-        printf("Combien de joueurs ? ");
-        scanf("%d", nbPlayers);
+        printw("Combien de joueurs ? ");
+        refresh();
+        scanw("%d", nbPlayers);
     }
     Player* players = malloc(sizeof(Player)**nbPlayers);
     for (int i = 0; i < *nbPlayers; i++) {
@@ -28,8 +29,9 @@ Player* askPlayers(int* nbPlayers) {
 Player playerBuilder(int playerId) {
     Player player;
     player.playerId = playerId;
-    printf("Nom du joueur: ");
-    scanf("%s", player.name);
+    printw("Nom du joueur %d: ", playerId + 1);
+    refresh();
+    scanw("%s", player.name);
     player.score = 0;
     return player;
 }
