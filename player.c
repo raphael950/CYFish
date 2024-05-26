@@ -34,8 +34,8 @@ Player playerBuilder(int playerId) {
     refresh();
     int res = 0;
     do {
-        res = wgetnstr(stdscr, player.name, 20);
-    } while (res != 1 || strlen(player.name) == 0 || strlen(player.name) > 20);
+        res = wgetnstr(stdscr, player.name, 19);
+    } while (res != 1 || res == ERR || strlen(player.name) < 2);
     player.score = 0;
     return player;
 }
