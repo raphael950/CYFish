@@ -31,7 +31,7 @@ void printMessage(char* message, ...) {
     va_list args;
     va_start(args, message);
     wmove(messageWin, 1, 1);
-    vwprintw(messageWin, message, args);
+    vw_printw(messageWin, message, args);
     va_end(args);
     wrefresh(messageWin);
 }
