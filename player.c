@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "window.h"
+#include <string.h>
 
 WINDOW* getScoreWin() {
     static WINDOW* scoreWin = NULL;
@@ -13,15 +14,15 @@ WINDOW* getScoreWin() {
 }
 
 Player* askPlayers(int* nbPlayers) {
-    while (nbPlayers == NULL || *nbPlayers < 2 || *nbPlayers > 6) {
+    int res = 0;
+    while (res != 1 || nbPlayers == NULL || *nbPlayers < 2 || *nbPlayers > 6) {
         printw("Combien de joueurs ? ");
         refresh();
-        scanw("%d", nbPlayers);
+        res = scanw("%d", nbPlayers);
     }
     Player* players = malloc(sizeof(Player)**nbPlayers);
     for (int i = 0; i < *nbPlayers; i++) {
         players[i] = playerBuilder(i);
-        // TODO: Check if name already used.
     }
     return players;
 }
@@ -31,7 +32,10 @@ Player playerBuilder(int playerId) {
     player.playerId = playerId;
     printw("Nom du joueur %d: ", playerId + 1);
     refresh();
-    scanw("%s", player.name);
+    int res = 0;
+    do {
+        res = scanw("%s", player.name);
+    } while (res != 1 || strlen(player.name) == 0 || strlen(player.name) > 20);
     player.score = 0;
     return player;
 }
