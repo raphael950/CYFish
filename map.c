@@ -238,9 +238,9 @@ void printBox(Box* box, WINDOW* mapWin, int printBorder, int printFishes) {
             } else {
                 xFish = rand() % 4 + 2;
             }
-            if (isSpawnpoint(box)) {
-                mvwprintw(mapWin, yOffset + yFish + 1, xOffset + xFish, "\U0001f433");
-            } else mvwprintw(mapWin, yOffset + yFish + 1, xOffset + xFish, "\U0001f41f");
+            if (box->fishValues[i] == 1) mvwprintw(mapWin, yOffset + yFish + 1, xOffset + xFish, "\U0001f433");
+            else if (box->fishValues[i] == 2) mvwprintw(mapWin, yOffset + yFish + 1, xOffset + xFish, "\U0001f41f");
+            else mvwprintw(mapWin, yOffset + yFish + 1, xOffset + xFish, "\U0001f988");
         }
     }
     if (box->playerId >= 0) {
