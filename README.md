@@ -12,4 +12,4 @@
 
 > [!IMPORTANT]
 > Le jeu fonctionne uniquement sur Linux et MacOS.
-> La librairie ncurses est nécessaire pour le faire fonctionner.
+> La librairie ncurses est nécessaire.
