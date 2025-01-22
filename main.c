@@ -26,28 +26,26 @@ int main() {
     curs_set(0);
     use_default_colors();
 
-    const char *line1 = "  _______ ___ ___     _______ ___ _______ ___ ___ ";
-    const char *line2 = " |   _   |   Y   |   |   _   |   |   _   |   Y   |";
-    const char *line3 = " |.  1___|   1   |   |.  1___|.  |   1___|.  1   |";
-    const char *line4 = " |.  |___ \\_   _/    |.  __) |.  |____   |.  _   |";
-    const char *line5 = " |:  1   | |:  |     |:  |   |:  |:  1   |:  |   |";
-    const char *line6 = " |::.. . | |::.|     |::.|   |::.|::.. . |::.|:. |";
-    const char *line7 = " `-------' `---'     `---'   `---`-------`--- ---'";
-    const char *line8 = "                                                  ";
-    const char *line9 = "Press any key to start...";
+    char* title[9] = {
+        "  _______ ___ ___     _______ ___ _______ ___ ___ ",
+        " |   _   |   Y   |   |   _   |   |   _   |   Y   |",
+        " |.  1___|   1   |   |.  1___|.  |   1___|.  1   |",
+        " |.  |___ \\_   _/    |.  __) |.  |____   |.  _   |",
+        " |:  1   | |:  |     |:  |   |:  |:  1   |:  |   |",
+        " |::.. . | |::.|     |::.|   |::.|::.. . |::.|:. |",
+        " `-------' `---'     `---'   `---`-------`--- ---'",
+        "                                                  ",
+        "Press any key to start..."
+    };
 
     int start_row = 0;
 
     clear();  // Clear screen
-    printCentered(start_row++, line1);
-    printCentered(start_row++, line2);
-    printCentered(start_row++, line3);
-    printCentered(start_row++, line4);
-    printCentered(start_row++, line5);
-    printCentered(start_row++, line6);
-    printCentered(start_row++, line7);
-    printCentered(start_row++, line8);
-    printCentered(start_row++, line9);
+
+    for (int i = 0; i < 9; i++) {
+        printCentered(i, title[i]);
+    }
+
     refresh();
     getch();
     clear();
