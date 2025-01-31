@@ -1,6 +1,11 @@
 # CY-Fish
 Un jeu de stratégie sur une grille hexagonale, où des pingouins se livrent une bataille acharnée pour collecter des poissons avant que la banquise ne fonde.
 
+Rendu final du jeu:
+
+
+![previw-gif](https://github.com/user-attachments/assets/1e07fe6c-2bf4-4fb2-aeed-2961a93c5de7)
+
 ## Installation
 
 > [!IMPORTANT]
