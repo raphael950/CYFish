@@ -30,6 +30,9 @@ make && ./exec
 - 2 à 6 joueurs
 - Gain de points: baleine 1pt, poisson 2pt, requin 3pt
 - Un seul déplacement par tour
+- Utiliser les flèches choisir votre case (prévisualisation dispo)
+- Utiliser les chiffres du clavier pour choisir la distance de déplacement
+- Pour valider appuyez sur ENTREE
 
 La partie se termine lorsque plus aucun pingouin ne peut se déplacer.
 Le joueur ayant le plus de points l'emporte !
