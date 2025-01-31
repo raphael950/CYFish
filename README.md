@@ -28,7 +28,7 @@ make && ./exec
 ## Règles du jeu
 
 - 2 à 6 joueurs
-- Manger un poisson rapporte 1 point
+- Gain de points: baleine 1pt, poisson 2pt, requin 3pt
 - Un seul déplacement par tour
 
 La partie se termine lorsque plus aucun pingouin ne peut se déplacer.
